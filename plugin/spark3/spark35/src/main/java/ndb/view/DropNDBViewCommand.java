@@ -54,7 +54,7 @@ public class DropNDBViewCommand
         }
         final InternalRow row = new GenericInternalRow(1);
         row.update(0, dropped);
-        final Seq<InternalRow> result = JavaConverters.asScalaIteratorConverter(
+        final scala.collection.immutable.Seq<InternalRow> result = (scala.collection.immutable.Seq<InternalRow>) JavaConverters.asScalaIteratorConverter(
                 Arrays.stream(new InternalRow[]{row}).iterator()).asScala().toSeq();
         LOG.debug("run() returning {}", result);
         return result;
@@ -74,9 +74,8 @@ public class DropNDBViewCommand
         }
     }
 
-    @Override
     public SparkPlan withNewChildrenInternal(IndexedSeq<SparkPlan> newChildren) {
-        this.children_ = newChildren;
+        this.children_ = (Seq<SparkPlan>) newChildren.toSeq();
         return this;
     }
 

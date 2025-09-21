@@ -53,7 +53,7 @@ public class NDBRowLevelResolutionRule
                 Function1<LogicalPlan, LogicalPlan> func = lp -> {
                     if (lp instanceof DataSourceV2Relation) {
                         DataSourceV2Relation v2Relation = (DataSourceV2Relation) lp;
-                        Seq<AttributeReference> newOutput = v2Relation.output().map(CharVarcharUtils::cleanAttrMetadata).toSeq();
+                        scala.collection.immutable.Seq<AttributeReference> newOutput = (scala.collection.immutable.Seq<AttributeReference>) v2Relation.output().map(CharVarcharUtils::cleanAttrMetadata, scala.collection.immutable.List$.MODULE$.canBuildFrom()).toSeq();
                         LOG.info("NDBResolutionRule UpdateTable: new output: {}", newOutput);
                         return (LogicalPlan) v2Relation.copy(v2Relation.table(), newOutput, v2Relation.catalog(), v2Relation.identifier(), v2Relation.options());
                     }
@@ -63,7 +63,7 @@ public class NDBRowLevelResolutionRule
                 };
                 PartialFunction<LogicalPlan, LogicalPlan> transformer = PartialFunction.fromFunction(func);
                 LogicalPlan transformedTable = u.table().transform(transformer);
-                Seq<Assignment> newAssignments = AssignmentUtils.alignUpdateAssignments(transformedTable.output(), u.assignments());
+                scala.collection.immutable.Seq<Assignment> newAssignments = (scala.collection.immutable.Seq<Assignment>) AssignmentUtils.alignUpdateAssignments(transformedTable.output(), u.assignments()).toSeq();
                 return u.copy(transformedTable, newAssignments, u.condition());
             }
         }
@@ -92,7 +92,7 @@ public class NDBRowLevelResolutionRule
         else if (plan instanceof DropColumns) {
             LOG.debug("Drop columns: {}", plan);
             DropColumns drop = (DropColumns) plan;
-            Seq<FieldName> columns = drop.columnsToDrop();
+            scala.collection.immutable.Seq<FieldName> columns = (scala.collection.immutable.Seq<FieldName>) drop.columnsToDrop().toSeq();
             IntStream.range(0, columns.size()).forEach(i -> {
                 FieldName fName = columns.apply(i);
                 if (fName instanceof ResolvedFieldName) {
@@ -107,7 +107,7 @@ public class NDBRowLevelResolutionRule
         else if (plan instanceof AddColumns) {
             LOG.debug("Add columns: {}", plan);
             AddColumns drop = (AddColumns) plan;
-            Seq<QualifiedColType> columns = drop.columnsToAdd();
+            scala.collection.immutable.Seq<QualifiedColType> columns = (scala.collection.immutable.Seq<QualifiedColType>) drop.columnsToAdd().toSeq();
             IntStream.range(0, columns.size()).forEach(i -> {
                 QualifiedColType fName = columns.apply(i);
                 String name = fName.colName();
@@ -118,7 +118,7 @@ public class NDBRowLevelResolutionRule
         }
         else if (plan instanceof ReplaceColumns) {
             ReplaceColumns replaceColumns = (ReplaceColumns) plan;
-            Seq<QualifiedColType> colsToAdd = replaceColumns.columnsToAdd();
+            scala.collection.immutable.Seq<QualifiedColType> colsToAdd = (scala.collection.immutable.Seq<QualifiedColType>) replaceColumns.columnsToAdd().toSeq();
             IntStream.range(0, colsToAdd.size()).forEach(i -> {
                 String name = colsToAdd.apply(i).colName();
                 if (SPARK_ROW_ID_FIELD.name().equalsIgnoreCase(name)) {

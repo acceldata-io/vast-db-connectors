@@ -129,10 +129,9 @@ public class AlterNDBViewAsCommand
         }
     }
 
-    @Override
     public SparkPlan withNewChildrenInternal(IndexedSeq<SparkPlan> newChildren)
     {
-        this.children = newChildren;
+        this.children = (Seq<SparkPlan>) newChildren.toSeq();
         return this;
     }
 

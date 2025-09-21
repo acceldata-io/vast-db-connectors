@@ -90,7 +90,6 @@ public class ShowNDBTableColumnsCommand
         }
     }
 
-    @Override
     public SparkPlan withNewChildrenInternal(IndexedSeq<SparkPlan> newChildren)
     {
         this.children = newChildren;
