@@ -76,11 +76,14 @@ public class NDBRowLevelResolutionRule
             Function1<LogicalPlan, LogicalPlan> func = lp -> {
                 if (lp instanceof DataSourceV2Relation) {
                     DataSourceV2Relation v2Relation = (DataSourceV2Relation) lp;
-                    Builder<AttributeReference, List<AttributeReference>> refsWithRowID = List.newBuilder();
-                    AttributeReference rowIdAttRef = new AttributeReference(SPARK_ROW_ID_FIELD.name(), SPARK_ROW_ID_FIELD.dataType(), false, Metadata.empty(), ExprId.apply(0), List.<String>newBuilder().result());
-                    v2Relation.output().foreach(refsWithRowID::$plus$eq);
-                    refsWithRowID.$plus$eq(rowIdAttRef);
-                    List<AttributeReference> newOutput = refsWithRowID.result();
+                    java.util.List<AttributeReference> refsWithRowID = new java.util.ArrayList<>();
+                    AttributeReference rowIdAttRef = new AttributeReference(SPARK_ROW_ID_FIELD.name(), SPARK_ROW_ID_FIELD.dataType(), false, Metadata.empty(), ExprId.apply(0), (scala.collection.immutable.Seq<String>) scala.collection.immutable.Seq$.MODULE$.<String>empty());
+                    v2Relation.output().foreach(attr -> {
+                        refsWithRowID.add(attr);
+                        return null;
+                    });
+                    refsWithRowID.add(rowIdAttRef);
+                    scala.collection.immutable.Seq<AttributeReference> newOutput = (scala.collection.immutable.Seq<AttributeReference>) JavaConverters.asScalaIteratorConverter(refsWithRowID.iterator()).asScala().toList();
                     LOG.info("NDBResolutionRule DeleteFromTable: new output: {}", newOutput);
                     return (LogicalPlan) v2Relation.copy(v2Relation.table(), newOutput, v2Relation.catalog(), v2Relation.identifier(), v2Relation.options());
                 }
