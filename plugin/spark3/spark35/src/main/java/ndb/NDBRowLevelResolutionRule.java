@@ -25,9 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Function1;
 import scala.PartialFunction;
-import scala.collection.immutable.List;
+import scala.collection.JavaConverters;
 import scala.collection.immutable.Seq;
-import scala.collection.mutable.Builder;
 
 import java.util.stream.IntStream;
 
@@ -53,7 +52,12 @@ public class NDBRowLevelResolutionRule
                 Function1<LogicalPlan, LogicalPlan> func = lp -> {
                     if (lp instanceof DataSourceV2Relation) {
                         DataSourceV2Relation v2Relation = (DataSourceV2Relation) lp;
-                        scala.collection.immutable.Seq<AttributeReference> newOutput = (scala.collection.immutable.Seq<AttributeReference>) v2Relation.output().map(CharVarcharUtils::cleanAttrMetadata, scala.collection.immutable.List$.MODULE$.canBuildFrom()).toSeq();
+                        java.util.List<AttributeReference> javaList = new java.util.ArrayList<>();
+                        v2Relation.output().foreach(attr -> {
+                            javaList.add(CharVarcharUtils.cleanAttrMetadata(attr));
+                            return null;
+                        });
+                        scala.collection.immutable.Seq<AttributeReference> newOutput = (scala.collection.immutable.Seq<AttributeReference>) JavaConverters.asScalaIteratorConverter(javaList.iterator()).asScala().toList();
                         LOG.info("NDBResolutionRule UpdateTable: new output: {}", newOutput);
                         return (LogicalPlan) v2Relation.copy(v2Relation.table(), newOutput, v2Relation.catalog(), v2Relation.identifier(), v2Relation.options());
                     }
