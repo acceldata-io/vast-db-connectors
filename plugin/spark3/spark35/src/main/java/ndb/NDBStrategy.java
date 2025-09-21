@@ -92,7 +92,7 @@ public class NDBStrategy extends SparkStrategy
 
     private scala.collection.immutable.Seq<SparkPlan> planToResultImmutableSeq(SparkPlan plan)
     {
-        Builder<SparkPlan, List<SparkPlan>> builder = List.newBuilder();
+        Builder<SparkPlan, List<SparkPlan>> builder = List$.MODULE$.newBuilder();
         builder.addOne(plan);
         return builder.result();
     }

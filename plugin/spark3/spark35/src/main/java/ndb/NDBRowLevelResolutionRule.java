@@ -72,7 +72,7 @@ public class NDBRowLevelResolutionRule
             Function1<LogicalPlan, LogicalPlan> func = lp -> {
                 if (lp instanceof DataSourceV2Relation) {
                     DataSourceV2Relation v2Relation = (DataSourceV2Relation) lp;
-                    Builder<AttributeReference, List<AttributeReference>> refsWithRowID = List.newBuilder();
+                    Builder<AttributeReference, List<AttributeReference>> refsWithRowID = List$.MODULE$.newBuilder();
                     AttributeReference rowIdAttRef = new AttributeReference(SPARK_ROW_ID_FIELD.name(), SPARK_ROW_ID_FIELD.dataType(), false, Metadata.empty(), ExprId.apply(0), List.<String>newBuilder().result());
                     v2Relation.output().foreach(refsWithRowID::$plus$eq);
                     refsWithRowID.$plus$eq(rowIdAttRef);

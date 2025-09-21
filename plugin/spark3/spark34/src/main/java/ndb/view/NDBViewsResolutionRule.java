@@ -128,7 +128,7 @@ public class NDBViewsResolutionRule
                 catch (Exception e) {
                     throw new RuntimeException(QueryCompilationErrors.invalidViewText(query, viewName));
                 }
-                Builder<String, List<String>> namespaceSeqBuilder = List.newBuilder();
+                Builder<String, List<String>> namespaceSeqBuilder = List$.MODULE$.newBuilder();
                 for (String part : vastView.currentNamespace()) {
                     namespaceSeqBuilder.addOne(part);
                 }
@@ -181,7 +181,7 @@ public class NDBViewsResolutionRule
                 }
                 else {
                     Table vastViewTable = vastView.asTable();
-                    Builder<Attribute, List<Attribute>> attributeListBuilder = List.newBuilder();
+                    Builder<Attribute, List<Attribute>> attributeListBuilder = List$.MODULE$.newBuilder();
                     for (StructField field : vastViewTable.schema().fields()) {
                         attributeListBuilder.addOne(field.toAttribute());
                     }

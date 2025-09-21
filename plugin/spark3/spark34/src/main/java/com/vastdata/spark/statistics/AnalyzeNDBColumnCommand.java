@@ -89,7 +89,7 @@ public class AnalyzeNDBColumnCommand
         final SparkSession session = session();
         final LogicalPlan rel = session.table(relation.name()).logicalPlan();
         final Seq<Attribute> columns = rel.output();
-        Builder<Attribute, List<Attribute>> newOutputBuilder = List.newBuilder();
+        Builder<Attribute, List<Attribute>> newOutputBuilder = List$.MODULE$.newBuilder();
         IntStream.range(0, columns.size()).mapToObj(columns::apply).filter(ar -> { return columnNames.contains( ar.name()); }).forEach(newOutputBuilder::$plus$eq);
         List<Attribute> newColumns = newOutputBuilder.result();
 

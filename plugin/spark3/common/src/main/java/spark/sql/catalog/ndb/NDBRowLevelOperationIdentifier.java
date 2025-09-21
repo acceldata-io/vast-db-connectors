@@ -37,7 +37,7 @@ public final class NDBRowLevelOperationIdentifier
 
     public static Seq<String> adaptTableIdentifiersToRowLevelOp(Seq<String> origIdentifiers)
     {
-        Builder<String, List<String>> newIdentifiersBuilder = List.newBuilder();
+        Builder<String, List<String>> newIdentifiersBuilder = List$.MODULE$.newBuilder();
         IntStream.range(0, origIdentifiers.size() - 1).forEachOrdered(i -> newIdentifiersBuilder.$plus$eq(origIdentifiers.apply(i)));
         String adaptedTableName = adaptTableNameToRowLevelOp(origIdentifiers.apply(origIdentifiers.size() - 1));
         newIdentifiersBuilder.$plus$eq(adaptedTableName);

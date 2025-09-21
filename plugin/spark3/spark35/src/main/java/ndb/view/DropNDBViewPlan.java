@@ -13,6 +13,7 @@ import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
 import scala.collection.immutable.IndexedSeq;
 import scala.collection.immutable.List;
+import scala.collection.immutable.List$;
 import scala.collection.immutable.Seq;
 import scala.collection.mutable.Builder;
 
@@ -23,7 +24,7 @@ public class DropNDBViewPlan
 {
     public static final Seq<Attribute> OUTPUT;
     static {
-        Builder<Attribute, List<Attribute>> b = List.newBuilder();
+        Builder<Attribute, List<Attribute>> b = List$.MODULE$.newBuilder();
         Attribute resAttr = new AttributeReference("dropped",
                 DataTypes.BooleanType, true, Metadata.empty(), ExprId.apply(0),
                 (scala.collection.immutable.Seq<String>) scala.collection.immutable.Seq$.MODULE$.<String>empty());
