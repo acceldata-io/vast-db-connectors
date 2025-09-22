@@ -42,14 +42,14 @@ public class AlterNDBViewAsPlan
             return EMPTY_LOGICAL_PLAN_SEQ;
         }
         else {
-            return children.toSeq();
+            return children;
         }
     }
 
     @Override
     public LogicalPlan withNewChildrenInternal(IndexedSeq<LogicalPlan> newChildren) {
         {
-            this.children = newChildren;
+            this.children = (Seq<LogicalPlan>) newChildren.toSeq();
             return this;
         }
     }

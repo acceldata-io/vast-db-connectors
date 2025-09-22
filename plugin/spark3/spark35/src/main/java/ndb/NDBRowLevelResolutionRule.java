@@ -25,9 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Function1;
 import scala.PartialFunction;
-import scala.collection.immutable.List;
+import scala.collection.JavaConverters;
 import scala.collection.immutable.Seq;
-import scala.collection.mutable.Builder;
 
 import java.util.stream.IntStream;
 
@@ -53,7 +52,12 @@ public class NDBRowLevelResolutionRule
                 Function1<LogicalPlan, LogicalPlan> func = lp -> {
                     if (lp instanceof DataSourceV2Relation) {
                         DataSourceV2Relation v2Relation = (DataSourceV2Relation) lp;
-                        Seq<AttributeReference> newOutput = v2Relation.output().map(CharVarcharUtils::cleanAttrMetadata).toSeq();
+                        java.util.List<AttributeReference> javaList = new java.util.ArrayList<>();
+                        v2Relation.output().foreach(attr -> {
+                            javaList.add(CharVarcharUtils.cleanAttrMetadata(attr));
+                            return null;
+                        });
+                        scala.collection.immutable.Seq<AttributeReference> newOutput = (scala.collection.immutable.Seq<AttributeReference>) JavaConverters.asScalaIteratorConverter(javaList.iterator()).asScala().toList();
                         LOG.info("NDBResolutionRule UpdateTable: new output: {}", newOutput);
                         return (LogicalPlan) v2Relation.copy(v2Relation.table(), newOutput, v2Relation.catalog(), v2Relation.identifier(), v2Relation.options());
                     }
@@ -63,7 +67,7 @@ public class NDBRowLevelResolutionRule
                 };
                 PartialFunction<LogicalPlan, LogicalPlan> transformer = PartialFunction.fromFunction(func);
                 LogicalPlan transformedTable = u.table().transform(transformer);
-                Seq<Assignment> newAssignments = AssignmentUtils.alignUpdateAssignments(transformedTable.output(), u.assignments());
+                scala.collection.immutable.Seq<Assignment> newAssignments = (scala.collection.immutable.Seq<Assignment>) AssignmentUtils.alignUpdateAssignments(transformedTable.output(), u.assignments()).toSeq();
                 return u.copy(transformedTable, newAssignments, u.condition());
             }
         }
@@ -72,11 +76,14 @@ public class NDBRowLevelResolutionRule
             Function1<LogicalPlan, LogicalPlan> func = lp -> {
                 if (lp instanceof DataSourceV2Relation) {
                     DataSourceV2Relation v2Relation = (DataSourceV2Relation) lp;
-                    Builder<AttributeReference, List<AttributeReference>> refsWithRowID = List.newBuilder();
-                    AttributeReference rowIdAttRef = new AttributeReference(SPARK_ROW_ID_FIELD.name(), SPARK_ROW_ID_FIELD.dataType(), false, Metadata.empty(), ExprId.apply(0), List.<String>newBuilder().result());
-                    v2Relation.output().foreach(refsWithRowID::$plus$eq);
-                    refsWithRowID.$plus$eq(rowIdAttRef);
-                    List<AttributeReference> newOutput = refsWithRowID.result();
+                    java.util.List<AttributeReference> refsWithRowID = new java.util.ArrayList<>();
+                    AttributeReference rowIdAttRef = new AttributeReference(SPARK_ROW_ID_FIELD.name(), SPARK_ROW_ID_FIELD.dataType(), false, Metadata.empty(), ExprId.apply(0), (scala.collection.immutable.Seq<String>) scala.collection.immutable.Seq$.MODULE$.<String>empty());
+                    v2Relation.output().foreach(attr -> {
+                        refsWithRowID.add(attr);
+                        return null;
+                    });
+                    refsWithRowID.add(rowIdAttRef);
+                    scala.collection.immutable.Seq<AttributeReference> newOutput = (scala.collection.immutable.Seq<AttributeReference>) JavaConverters.asScalaIteratorConverter(refsWithRowID.iterator()).asScala().toList();
                     LOG.info("NDBResolutionRule DeleteFromTable: new output: {}", newOutput);
                     return (LogicalPlan) v2Relation.copy(v2Relation.table(), newOutput, v2Relation.catalog(), v2Relation.identifier(), v2Relation.options());
                 }
@@ -92,7 +99,7 @@ public class NDBRowLevelResolutionRule
         else if (plan instanceof DropColumns) {
             LOG.debug("Drop columns: {}", plan);
             DropColumns drop = (DropColumns) plan;
-            Seq<FieldName> columns = drop.columnsToDrop();
+            scala.collection.immutable.Seq<FieldName> columns = (scala.collection.immutable.Seq<FieldName>) drop.columnsToDrop().toSeq();
             IntStream.range(0, columns.size()).forEach(i -> {
                 FieldName fName = columns.apply(i);
                 if (fName instanceof ResolvedFieldName) {
@@ -107,7 +114,7 @@ public class NDBRowLevelResolutionRule
         else if (plan instanceof AddColumns) {
             LOG.debug("Add columns: {}", plan);
             AddColumns drop = (AddColumns) plan;
-            Seq<QualifiedColType> columns = drop.columnsToAdd();
+            scala.collection.immutable.Seq<QualifiedColType> columns = (scala.collection.immutable.Seq<QualifiedColType>) drop.columnsToAdd().toSeq();
             IntStream.range(0, columns.size()).forEach(i -> {
                 QualifiedColType fName = columns.apply(i);
                 String name = fName.colName();
@@ -118,7 +125,7 @@ public class NDBRowLevelResolutionRule
         }
         else if (plan instanceof ReplaceColumns) {
             ReplaceColumns replaceColumns = (ReplaceColumns) plan;
-            Seq<QualifiedColType> colsToAdd = replaceColumns.columnsToAdd();
+            scala.collection.immutable.Seq<QualifiedColType> colsToAdd = (scala.collection.immutable.Seq<QualifiedColType>) replaceColumns.columnsToAdd().toSeq();
             IntStream.range(0, colsToAdd.size()).forEach(i -> {
                 String name = colsToAdd.apply(i).colName();
                 if (SPARK_ROW_ID_FIELD.name().equalsIgnoreCase(name)) {

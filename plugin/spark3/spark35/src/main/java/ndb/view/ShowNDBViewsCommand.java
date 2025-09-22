@@ -68,7 +68,7 @@ public class ShowNDBViewsCommand
         try {
             final String[] prefix = ((UnresolvedNamespace) original.original.child()).multipartIdentifier().drop(1).mkString(".").split("\\.");
             final Identifier[] views = catalog.listViews(prefix);
-            final Seq<InternalRow> result = JavaConverters.asScalaIteratorConverter(
+            final scala.collection.immutable.Seq<InternalRow> result = (scala.collection.immutable.Seq<InternalRow>) JavaConverters.asScalaIteratorConverter(
                     Arrays.stream(views).map(this::identifierToRow).iterator()).asScala().toSeq();
             LOG.debug("Returning result: {}", result);
             return result;
@@ -94,7 +94,6 @@ public class ShowNDBViewsCommand
         }
     }
 
-    @Override
     public SparkPlan withNewChildrenInternal(IndexedSeq<SparkPlan> newChildren)
     {
         this.children = newChildren;

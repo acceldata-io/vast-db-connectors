@@ -56,7 +56,7 @@ public class AnalyzeNDBColumnCommand
     private final VastTable table;
     private final java.util.List<String> columnNames;
 
-    private AnalyzeNDBColumnCommand(ResolvedTable relation, Option<Seq<String>> columnNames) {
+    private AnalyzeNDBColumnCommand(ResolvedTable relation, Option<scala.collection.immutable.Seq<String>> columnNames) {
         super();
         this.relation = relation;
         this.table = (VastTable) relation.table();
@@ -80,17 +80,16 @@ public class AnalyzeNDBColumnCommand
         return (Seq<SparkPlan>) scala.collection.immutable.Seq$.MODULE$.<SparkPlan>empty();
     }
 
-    @Override
     public SparkPlan withNewChildrenInternal(IndexedSeq<SparkPlan> newChildren)
     {
-        return null;
+        return this;
     }
 
     @Override
     public Seq<InternalRow> run() {
         SparkSession session = session();
         LogicalPlan rel = session.table(relation.name()).logicalPlan();
-        Seq<Attribute> columns = rel.output();
+        scala.collection.immutable.Seq<Attribute> columns = (scala.collection.immutable.Seq<Attribute>) rel.output().toSeq();
         Builder<Attribute, List<Attribute>> newOutputBuilder = List.newBuilder();
         IntStream.range(0, columns.size()).mapToObj(columns::apply).filter(ar -> {
             if (!columnNames.contains( ar.name())) {
@@ -200,7 +199,7 @@ public class AnalyzeNDBColumnCommand
         // TODO: support "ANALYZE TABLE t COMPUTE STATISTICS FOR COLUMNS c1,...cN" (see AnalyzeColumn#columnNames)
         LogicalPlan child = plan.child();
         if (child instanceof ResolvedTable) {
-            return new AnalyzeNDBColumnCommand((ResolvedTable) child, plan.columnNames());
+            return new AnalyzeNDBColumnCommand((ResolvedTable) child, (Option<scala.collection.immutable.Seq<String>>) plan.columnNames());
         }
         else {
             throw new RuntimeException(format("Unexpected child plan type: %s", plan));
