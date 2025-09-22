@@ -5,5 +5,5 @@ TARGET=./target/
 
 
 if [[ -d $PRE_GENERATED ]]; then
-    cp -r --update=all $PRE_GENERATED/* $TARGET;
+    cp -r --update $PRE_GENERATED/* $TARGET;
 fi

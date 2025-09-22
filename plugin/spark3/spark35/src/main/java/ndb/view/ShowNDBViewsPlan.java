@@ -20,7 +20,7 @@ public class ShowNDBViewsPlan extends LogicalPlan
     private ShowNDBViewsPlan(final ShowViews original) {
         super();
         this.original = original;
-        cachedOutput = ShowViews.getOutputAttrs();
+        cachedOutput = (Seq<Attribute>) ShowViews.getOutputAttrs().toSeq();
     }
 
     @Override
