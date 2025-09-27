@@ -56,7 +56,7 @@ public class NDBParser implements ParserInterface {
             Function1<LogicalPlan, LogicalPlan> func = p -> {
                 if (p instanceof UnresolvedRelation) {
                     UnresolvedRelation unresolvedRel = (UnresolvedRelation) p;
-                    scala.collection.immutable.Seq<String> adaptedIdentifiers = (scala.collection.immutable.Seq<String>) adaptTableIdentifiersToRowLevelOp(unresolvedRel.multipartIdentifier());
+                    scala.collection.immutable.Seq<String> adaptedIdentifiers = adaptTableIdentifiersToRowLevelOp((scala.collection.immutable.Seq<String>) unresolvedRel.multipartIdentifier());
                     return unresolvedRel.copy(adaptedIdentifiers, unresolvedRel.options(), unresolvedRel.isStreaming());
                 }
                 else {

@@ -181,7 +181,10 @@ public class AnalyzeNDBColumnCommand
         // TODO: support "ANALYZE TABLE t COMPUTE STATISTICS FOR COLUMNS c1,...cN" (see AnalyzeColumn#columnNames)
         LogicalPlan child = plan.child();
         if (child instanceof ResolvedTable) {
-            return new AnalyzeNDBColumnCommand((ResolvedTable) child, (scala.Option<scala.collection.immutable.Seq<String>>) plan.columnNames());
+            scala.Option<scala.collection.immutable.Seq<String>> columnNames = plan.columnNames().isEmpty() ? 
+                scala.Option.empty() : 
+                scala.Option.apply((scala.collection.immutable.Seq<String>) plan.columnNames().get());
+            return new AnalyzeNDBColumnCommand((ResolvedTable) child, columnNames);
         }
         else {
             throw new RuntimeException(format("Unexpected child plan type: %s", plan));
