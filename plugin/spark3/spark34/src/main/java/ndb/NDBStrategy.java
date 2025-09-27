@@ -37,7 +37,7 @@ import static com.vastdata.spark.VastDelete.DELETE_ERROR_SUPPLIER;
 public class NDBStrategy extends SparkStrategy
 {
     private static final Logger LOG = LoggerFactory.getLogger(NDBStrategy.class);
-    public static final List<SparkPlan> EMPTY_RESULT_SEQ = List.<SparkPlan>newBuilder().result();
+    public static final List<SparkPlan> EMPTY_RESULT_SEQ = List$.MODULE$.<SparkPlan>newBuilder().result();
     private final SparkSession session;
 
     public NDBStrategy(SparkSession session) {
@@ -106,8 +106,8 @@ public class NDBStrategy extends SparkStrategy
 
     private scala.collection.immutable.Seq<SparkPlan> planToResultImmutableSeq(SparkPlan plan)
     {
-        Builder<SparkPlan, List<SparkPlan>> builder = List.newBuilder();
-        builder.addOne(plan);
+        Builder<SparkPlan, List<SparkPlan>> builder = List$.MODULE$.newBuilder();
+        builder.$plus$eq(plan);
         return builder.result();
     }
 }

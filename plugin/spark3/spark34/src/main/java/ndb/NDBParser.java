@@ -63,7 +63,17 @@ public class NDBParser implements ParserInterface {
                     return p;
                 }
             };
-            PartialFunction<LogicalPlan, LogicalPlan> transformer = PartialFunction.fromFunction(func);
+            PartialFunction<LogicalPlan, LogicalPlan> transformer = new PartialFunction<LogicalPlan, LogicalPlan>() {
+                @Override
+                public boolean isDefinedAt(LogicalPlan x) {
+                    return true;
+                }
+                
+                @Override
+                public LogicalPlan apply(LogicalPlan x) {
+                    return func.apply(x);
+                }
+            };
             LogicalPlan transformed = original.transform(transformer);
             LOG.info("Transformed row level operation plan: {}", transformed);
             return transformed;

@@ -43,7 +43,7 @@ public class ShowNDBTableColumnsCommand
         genericInternalRow.update(1, structField.dataType());
         genericInternalRow.update(2, structField.nullable());
         genericInternalRow.update(3, structField.metadata());
-        builder.addOne(genericInternalRow);
+        builder.$plus$eq(genericInternalRow);
     };
     private final Seq<Attribute> columns;
     private IndexedSeq<SparkPlan> children = null;

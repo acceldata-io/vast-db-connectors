@@ -27,6 +27,7 @@ import scala.Option;
 import scala.Tuple2;
 import scala.collection.immutable.IndexedSeq;
 import scala.collection.immutable.Map;
+import scala.collection.immutable.Map$;
 import scala.collection.immutable.Seq;
 import scala.collection.immutable.Seq$;
 import scala.collection.mutable.Builder;
@@ -70,12 +71,12 @@ public class RenameNDBViewCommand
                     String comment = vastView.properties().get("comment");
                     String[] columnAliases = vastView.columnAliases();
                     String[] columnComments = vastView.columnComments();
-                    Builder<Tuple2<String, String>, Map<String, String>> mapBuilder = Map.newBuilder();
+                    Builder<Tuple2<String, String>, Map<String, String>> mapBuilder = Map$.MODULE$.newBuilder();
                     java.util.Map<String, String> currentProperties = vastView.properties();
                     currentProperties.entrySet().stream()
                             .filter(e -> !e.getKey().equals("comment"))
                             .map(e -> Tuple2.apply(e.getKey(), e.getValue()))
-                            .forEach(mapBuilder::addOne);
+                            .forEach(mapBuilder::$plus$eq);
                     Map<String, String> propsScalaMap = mapBuilder.result();
                     StructType structType = session.sql(vastView.query()).logicalPlan().schema();
                     SparkViewMetadata ctx = new SparkViewMetadata(newIdentifier, false, false,

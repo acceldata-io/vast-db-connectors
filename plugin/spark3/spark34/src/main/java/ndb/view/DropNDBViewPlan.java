@@ -23,11 +23,11 @@ public class DropNDBViewPlan
 {
     public static final Seq<Attribute> OUTPUT;
     static {
-        Builder<Attribute, List<Attribute>> b = List.newBuilder();
+        Builder<Attribute, List<Attribute>> b = List$.MODULE$.newBuilder();
         Attribute resAttr = new AttributeReference("dropped",
                 DataTypes.BooleanType, true, Metadata.empty(), ExprId.apply(0),
                 (scala.collection.immutable.Seq<String>) scala.collection.immutable.Seq$.MODULE$.<String>empty());
-        b.addOne(resAttr);
+        b.$plus$eq(resAttr);
         OUTPUT = b.result();
     }
     private Seq<LogicalPlan> children;

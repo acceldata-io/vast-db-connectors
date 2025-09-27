@@ -127,9 +127,9 @@ public class NDBViewsResolutionRule
                 catch (Exception e) {
                     throw new RuntimeException(QueryCompilationErrors.invalidViewText(query, viewName));
                 }
-                Builder<String, List<String>> namespaceSeqBuilder = List.newBuilder();
+                Builder<String, List<String>> namespaceSeqBuilder = List$.MODULE$.newBuilder();
                 for (String part : vastView.currentNamespace()) {
-                    namespaceSeqBuilder.addOne(part);
+                    namespaceSeqBuilder.$plus$eq(part);
                 }
                 List<String> namespaceSeq = namespaceSeqBuilder.result();
                 AliasIdentifier aliasIdentifier = AliasIdentifier.apply(viewName, namespaceSeq);
@@ -180,9 +180,9 @@ public class NDBViewsResolutionRule
                 }
                 else {
                     Table vastViewTable = vastView.asTable();
-                    Builder<Attribute, List<Attribute>> attributeListBuilder = List.newBuilder();
+                    Builder<Attribute, List<Attribute>> attributeListBuilder = List$.MODULE$.newBuilder();
                     for (StructField field : vastViewTable.schema().fields()) {
-                        attributeListBuilder.addOne(field.toAttribute());
+                        attributeListBuilder.$plus$eq(field.toAttribute());
                     }
                     ResolvedTable resolvedTable = new ResolvedTable(InitializedVastCatalog.getVastCatalog(), identifier, vastViewTable, attributeListBuilder.result());
                     LOG.debug("Successfully transformed UnresolvedTableOrView to ResolvedTable: {}", resolvedTable);
@@ -213,21 +213,31 @@ public class NDBViewsResolutionRule
                 LogicalPlan resolvedQuery = session.sessionState().analyzer().execute(createNDBViewPlan.children().apply(1));
                 LOG.debug("Successfully resolved CreateNDBViewPlan query to LogicalPlan: {}", resolvedQuery);
                 LogicalPlan[] r = new LogicalPlan[] {createNDBViewPlan.children().apply(0), resolvedQuery};
-                Seq<LogicalPlan> result = WrappedArray.make(r).toList();
+                scala.collection.immutable.IndexedSeq<LogicalPlan> result = WrappedArray.make(r);
                 return createNDBViewPlan.withNewChildrenInternal(result);
             }
             else {
                 return p;
             }
         };
-        PartialFunction<LogicalPlan, LogicalPlan> transformer = PartialFunction.fromFunction(resolveViewFunc);
+        PartialFunction<LogicalPlan, LogicalPlan> transformer = new PartialFunction<LogicalPlan, LogicalPlan>() {
+            @Override
+            public boolean isDefinedAt(LogicalPlan x) {
+                return true;
+            }
+            
+            @Override
+            public LogicalPlan apply(LogicalPlan x) {
+                return resolveViewFunc.apply(x);
+            }
+        };
         return plan.resolveOperators(transformer);
     }
 
     private static void addAlias(Expression outputField, String columnAlias, Builder<NamedExpression, List<NamedExpression>> namedExpressionListBuilder)
     {
         NamedExpression al = new Alias(outputField, columnAlias, NamedExpression.newExprId(), EMPTY_STRING_SEQ, Option.apply(Metadata.empty()), EMPTY_STRING_SEQ);
-        namedExpressionListBuilder.addOne(al);
+        namedExpressionListBuilder.$plus$eq(al);
     }
 
 

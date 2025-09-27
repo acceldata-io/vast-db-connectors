@@ -19,7 +19,7 @@ import org.apache.spark.unsafe.types.UTF8String;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Option;
-import scala.collection.JavaConverters;
+import scala.collection.JavaConversions;
 import scala.collection.immutable.IndexedSeq;
 import scala.collection.immutable.Seq;
 import spark.sql.catalog.ndb.InitializedVastCatalog;
@@ -68,8 +68,8 @@ public class ShowNDBViewsCommand
         try {
             final String[] prefix = ((UnresolvedNamespace) original.original.child()).multipartIdentifier().drop(1).mkString(".").split("\\.");
             final Identifier[] views = catalog.listViews(prefix);
-            final Seq<InternalRow> result = JavaConverters.asScalaIteratorConverter(
-                    Arrays.stream(views).map(this::identifierToRow).iterator()).asScala().toSeq();
+            final scala.collection.immutable.Seq<InternalRow> result = JavaConversions.asScalaIterator(
+                    Arrays.stream(views).map(this::identifierToRow).iterator()).toSeq();
             LOG.debug("Returning result: {}", result);
             return result;
         } catch (final NoSuchNamespaceException error) {

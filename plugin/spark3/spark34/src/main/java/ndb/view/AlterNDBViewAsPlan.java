@@ -83,7 +83,17 @@ public class AlterNDBViewAsPlan
                 return p;
             }
         };
-        PartialFunction<LogicalPlan, LogicalPlan> transformer = PartialFunction.fromFunction(resolveViewFunc);
+        PartialFunction<LogicalPlan, LogicalPlan> transformer = new PartialFunction<LogicalPlan, LogicalPlan>() {
+            @Override
+            public boolean isDefinedAt(LogicalPlan x) {
+                return true;
+            }
+            
+            @Override
+            public LogicalPlan apply(LogicalPlan x) {
+                return resolveViewFunc.apply(x);
+            }
+        };
         return new AlterNDBViewAsPlan((AlterViewAs) plan.resolveOperators(transformer));
     }
 
