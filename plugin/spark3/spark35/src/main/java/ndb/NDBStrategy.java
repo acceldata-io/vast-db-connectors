@@ -33,7 +33,6 @@ import scala.collection.immutable.List;
 import scala.collection.immutable.List$;
 import scala.collection.mutable.Builder;
 
-import static com.vastdata.spark.VastDelete.DELETE_ERROR_SUPPLIER;
 
 public class NDBStrategy extends SparkStrategy
 {
@@ -78,7 +77,7 @@ public class NDBStrategy extends SparkStrategy
             LogicalPlan child = replaceData.child();
             if (child instanceof Filter) {
                 Filter filter = (Filter) child;
-                throw DELETE_ERROR_SUPPLIER.apply(filter.condition());
+                throw new RuntimeException("Filtered deletes are not supported. Filter condition: " + filter.condition());
             }
         } else if (plan instanceof ShowNDBViewsPlan) {
             final ShowNDBViewsCommand command = ShowNDBViewsCommand.instance((ShowNDBViewsPlan) plan);
