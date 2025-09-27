@@ -31,8 +31,7 @@ import org.slf4j.LoggerFactory;
 import scala.Function1;
 import scala.Option;
 import scala.PartialFunction;
-import scala.collection.immutable.ArraySeq;
-import scala.collection.immutable.ArraySeq$;
+import scala.collection.mutable.WrappedArray;
 import scala.collection.immutable.List;
 import scala.collection.immutable.List$;
 import scala.collection.immutable.Seq;
@@ -213,7 +212,7 @@ public class NDBViewsResolutionRule
                 LogicalPlan resolvedQuery = session.sessionState().analyzer().execute(createNDBViewPlan.children().apply(1));
                 LOG.debug("Successfully resolved CreateNDBViewPlan query to LogicalPlan: {}", resolvedQuery);
                 LogicalPlan[] r = new LogicalPlan[] {createNDBViewPlan.children().apply(0), resolvedQuery};
-                ArraySeq<LogicalPlan> result = ArraySeq$.MODULE$.unsafeWrapArray(r);
+                Seq<LogicalPlan> result = WrappedArray.make(r).toList();
                 return createNDBViewPlan.withNewChildrenInternal(result);
             }
             else {

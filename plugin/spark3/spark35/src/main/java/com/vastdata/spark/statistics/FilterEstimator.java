@@ -24,7 +24,7 @@ import org.apache.spark.sql.types.TimestampNTZType;
 import org.apache.spark.sql.types.TimestampType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.jdk.javaapi.OptionConverters;
+import scala.Option;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -49,7 +49,10 @@ public final class FilterEstimator
     private static boolean isStringOrBinaryOrWithinRange(ColumnStatistics colStats, StructField field, Predicate predicate)
     {
         final ValueInterval statsInterval =
-            ValueInterval.apply(OptionConverters.toScala(colStats.min()), OptionConverters.toScala(colStats.max()), field.dataType());
+            ValueInterval.apply(
+                colStats.min().isPresent() ? Option.apply(colStats.min().get()) : Option.empty(),
+                colStats.max().isPresent() ? Option.apply(colStats.max().get()) : Option.empty(),
+                field.dataType());
         final org.apache.spark.sql.connector.expressions.Literal jLiteral =
             (org.apache.spark.sql.connector.expressions.Literal) predicate.children()[1];
         final org.apache.spark.sql.catalyst.expressions.Literal sLiteral =
