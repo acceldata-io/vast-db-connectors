@@ -852,7 +852,7 @@ public class TestVastCatalog
 
     private static void testProjectOptimizationOutput(SparkPlan sparkPlan, String expectedAttributeName, boolean expectFilter, Optional<Set<String>> filterColumnNames)
     {
-        Seq<Attribute> finalOutput = sparkPlan.output();
+        scala.collection.immutable.Seq<Attribute> finalOutput = (scala.collection.immutable.Seq<Attribute>) sparkPlan.output();
         assertEquals(finalOutput.length(), 1);
         Attribute att = finalOutput.head();
         assertEquals(att.name(), expectedAttributeName);
