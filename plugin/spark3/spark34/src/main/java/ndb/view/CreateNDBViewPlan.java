@@ -26,7 +26,7 @@ public class CreateNDBViewPlan
         this.original = original;
         this.currentCatalog = currentCatalog;
         this.currentNamespace = currentNamespace;
-        this.children = original.children();
+        this.children = (scala.collection.immutable.Seq<LogicalPlan>) original.children();
     }
 
     public CreateView getOriginal()
@@ -52,7 +52,8 @@ public class CreateNDBViewPlan
     }
 
     @Override
-    public LogicalPlan withNewChildrenInternal(IndexedSeq<LogicalPlan> newChildren) {
+    @Override
+    public LogicalPlan withNewChildrenInternal(scala.collection.IndexedSeq<LogicalPlan> newChildren) {
         {
             this.children = newChildren;
             return this;

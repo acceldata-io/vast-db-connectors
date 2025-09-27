@@ -56,7 +56,7 @@ public class NDBParser implements ParserInterface {
             Function1<LogicalPlan, LogicalPlan> func = p -> {
                 if (p instanceof UnresolvedRelation) {
                     UnresolvedRelation unresolvedRel = (UnresolvedRelation) p;
-                    Seq<String> adaptedIdentifiers = adaptTableIdentifiersToRowLevelOp(unresolvedRel.multipartIdentifier());
+                    scala.collection.immutable.Seq<String> adaptedIdentifiers = adaptTableIdentifiersToRowLevelOp(unresolvedRel.multipartIdentifier());
                     return unresolvedRel.copy(adaptedIdentifiers, unresolvedRel.options(), unresolvedRel.isStreaming());
                 }
                 else {
@@ -115,7 +115,7 @@ public class NDBParser implements ParserInterface {
 
     @Override
     public Seq<String> parseMultipartIdentifier(String sqlText) throws ParseException {
-        return parser.parseMultipartIdentifier(sqlText);
+        return (scala.collection.immutable.Seq<String>) parser.parseMultipartIdentifier(sqlText);
     }
 
     @Override

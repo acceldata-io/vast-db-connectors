@@ -74,7 +74,8 @@ public class CreateNDBViewCommand
     }
 
     @Override
-    public SparkPlan withNewChildrenInternal(IndexedSeq<SparkPlan> newChildren)
+    @Override
+    public SparkPlan withNewChildrenInternal(scala.collection.IndexedSeq<SparkPlan> newChildren)
     {
         this.children = newChildren;
         return this;
@@ -111,7 +112,7 @@ public class CreateNDBViewCommand
         String origRawViewSqlDefinition = originalCreateView.originalText().get();
         SparkViewMetadata sparkViewMetadata = new SparkViewMetadata(
                 identifier, replace, allowExisting, originalCreateView.comment(),
-                originalCreateView.userSpecifiedColumns(), originalCreateView.properties(), origRawViewSqlDefinition,
+                (scala.collection.immutable.Seq<scala.Tuple2<String, scala.Option<String>>>) originalCreateView.userSpecifiedColumns(), originalCreateView.properties(), origRawViewSqlDefinition,
                 queryPlan.schema(), plan.getCurrentCatalog(), plan.getCurrentNamespace());
         LOG.debug("CreateNDBViewCommand sparkViewMetadata: {}", sparkViewMetadata);
         return new CreateNDBViewCommand(sparkViewMetadata);

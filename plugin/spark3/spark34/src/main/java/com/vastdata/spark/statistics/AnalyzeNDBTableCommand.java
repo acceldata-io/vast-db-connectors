@@ -49,7 +49,8 @@ public class AnalyzeNDBTableCommand
     }
 
     @Override
-    public SparkPlan withNewChildrenInternal(IndexedSeq<SparkPlan> newChildren) {
+    @Override
+    public SparkPlan withNewChildrenInternal(scala.collection.IndexedSeq<SparkPlan> newChildren) {
         return null;
     }
 

@@ -63,13 +63,13 @@ public class NDBViewsResolutionRule
 
     private static final Function<LogicalPlan, Supplier<Seq<String>>> unresolvedIdentifierSeqSupplier = p -> {
            if (p instanceof UnresolvedRelation) {
-               return ((UnresolvedRelation) p)::multipartIdentifier;
+               return () -> (scala.collection.immutable.Seq<String>) ((UnresolvedRelation) p).multipartIdentifier();
            }
            else if (p instanceof UnresolvedTableOrView) {
-               return ((UnresolvedTableOrView) p)::multipartIdentifier;
+               return () -> (scala.collection.immutable.Seq<String>) ((UnresolvedTableOrView) p).multipartIdentifier();
            }
            else if (p instanceof UnresolvedView) {
-               return ((UnresolvedView) p)::multipartIdentifier;
+               return () -> (scala.collection.immutable.Seq<String>) ((UnresolvedView) p).multipartIdentifier();
            }
            else throw new RuntimeException("Unexpected class for unresolved identifier resolution: " + p.getClass());
     };
@@ -138,7 +138,7 @@ public class NDBViewsResolutionRule
                 LogicalPlan newPlan = parsedQueryPlan;
                 String[] columnAliases = vastView.columnAliases();
                 if (columnAliases != null && columnAliases.length > 0) {
-                    Seq<Attribute> output = parsedQueryPlan.output();
+                    scala.collection.immutable.Seq<Attribute> output = (scala.collection.immutable.Seq<Attribute>) parsedQueryPlan.output();
                     if (output != null && output.size() == columnAliases.length) {
                         Builder<NamedExpression, List<NamedExpression>> namedExpressionListBuilder = List$.MODULE$.newBuilder();
                         for (int i = 0; i < columnAliases.length; i++) {
@@ -213,7 +213,7 @@ public class NDBViewsResolutionRule
                 LogicalPlan resolvedQuery = session.sessionState().analyzer().execute(createNDBViewPlan.children().apply(1));
                 LOG.debug("Successfully resolved CreateNDBViewPlan query to LogicalPlan: {}", resolvedQuery);
                 LogicalPlan[] r = new LogicalPlan[] {createNDBViewPlan.children().apply(0), resolvedQuery};
-                scala.collection.immutable.IndexedSeq<LogicalPlan> result = WrappedArray.make(r);
+                scala.collection.IndexedSeq<LogicalPlan> result = WrappedArray.make(r);
                 return createNDBViewPlan.withNewChildrenInternal(result);
             }
             else {

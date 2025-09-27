@@ -90,7 +90,8 @@ public class ShowNDBTableColumnsCommand
     }
 
     @Override
-    public SparkPlan withNewChildrenInternal(IndexedSeq<SparkPlan> newChildren)
+    @Override
+    public SparkPlan withNewChildrenInternal(scala.collection.IndexedSeq<SparkPlan> newChildren)
     {
         this.children = newChildren;
         return this;
@@ -119,7 +120,7 @@ public class ShowNDBTableColumnsCommand
         LogicalPlan child = plan.child();
         if (child instanceof ResolvedTable) {
             ResolvedTable resolvedTable = (ResolvedTable) child;
-            return new ShowNDBTableColumnsCommand(resolvedTable.outputAttributes());
+            return new ShowNDBTableColumnsCommand((scala.collection.immutable.Seq<Attribute>) resolvedTable.outputAttributes());
         }
         else {
             throw new RuntimeException(format("Unexpected child plan type: %s", plan.toJSON()));

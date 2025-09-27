@@ -96,7 +96,7 @@ public class ShowNDBViewsCommand
     }
 
     @Override
-    public SparkPlan withNewChildrenInternal(IndexedSeq<SparkPlan> newChildren)
+    public SparkPlan withNewChildrenInternal(scala.collection.IndexedSeq<SparkPlan> newChildren)
     {
         this.children = newChildren;
         return this;

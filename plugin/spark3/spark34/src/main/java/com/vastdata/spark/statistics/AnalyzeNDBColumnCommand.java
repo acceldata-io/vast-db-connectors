@@ -79,7 +79,8 @@ public class AnalyzeNDBColumnCommand
     }
 
     @Override
-    public SparkPlan withNewChildrenInternal(IndexedSeq<SparkPlan> newChildren)
+    @Override
+    public SparkPlan withNewChildrenInternal(scala.collection.IndexedSeq<SparkPlan> newChildren)
     {
         return null;
     }
@@ -88,7 +89,7 @@ public class AnalyzeNDBColumnCommand
     public Seq<InternalRow> run() {
         final SparkSession session = session();
         final LogicalPlan rel = session.table(relation.name()).logicalPlan();
-        final Seq<Attribute> columns = rel.output();
+        final scala.collection.immutable.Seq<Attribute> columns = (scala.collection.immutable.Seq<Attribute>) rel.output();
         Builder<Attribute, List<Attribute>> newOutputBuilder = List$.MODULE$.newBuilder();
         IntStream.range(0, columns.size()).mapToObj(columns::apply).filter(ar -> { return columnNames.contains( ar.name()); }).forEach(newOutputBuilder::$plus$eq);
         List<Attribute> newColumns = newOutputBuilder.result();
@@ -181,7 +182,7 @@ public class AnalyzeNDBColumnCommand
         // TODO: support "ANALYZE TABLE t COMPUTE STATISTICS FOR COLUMNS c1,...cN" (see AnalyzeColumn#columnNames)
         LogicalPlan child = plan.child();
         if (child instanceof ResolvedTable) {
-            return new AnalyzeNDBColumnCommand((ResolvedTable) child, plan.columnNames());
+            return new AnalyzeNDBColumnCommand((ResolvedTable) child, (scala.Option<scala.collection.immutable.Seq<String>>) plan.columnNames());
         }
         else {
             throw new RuntimeException(format("Unexpected child plan type: %s", plan));

@@ -21,7 +21,7 @@ public class RenameNDBViewPlan
     private RenameNDBViewPlan(final RenameTable original) {
         super();
         this.original = original;
-        this.children = original.children();
+        this.children = (scala.collection.immutable.Seq<LogicalPlan>) original.children();
     }
 
     @Override
@@ -42,7 +42,8 @@ public class RenameNDBViewPlan
     }
 
     @Override
-    public LogicalPlan withNewChildrenInternal(IndexedSeq<LogicalPlan> newChildren) {
+    @Override
+    public LogicalPlan withNewChildrenInternal(scala.collection.IndexedSeq<LogicalPlan> newChildren) {
         {
             this.children = newChildren;
             return this;

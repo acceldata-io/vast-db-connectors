@@ -117,7 +117,8 @@ public class RenameNDBViewCommand
     }
 
     @Override
-    public SparkPlan withNewChildrenInternal(IndexedSeq<SparkPlan> newChildren)
+    @Override
+    public SparkPlan withNewChildrenInternal(scala.collection.IndexedSeq<SparkPlan> newChildren)
     {
         this.children = newChildren;
         return this;
@@ -142,7 +143,7 @@ public class RenameNDBViewCommand
         LogicalPlan child = plan.children().apply(0);
         if (child instanceof ResolvedPersistentView) {
             ResolvedPersistentView resolvedPersistentView = (ResolvedPersistentView) child;
-            Seq<String> newNameSeq = plan.original.newName();
+            scala.collection.immutable.Seq<String> newNameSeq = (scala.collection.immutable.Seq<String>) plan.original.newName();
             String newName;
             if (newNameSeq.size() == 1) {
                 newName = newNameSeq.apply(0);

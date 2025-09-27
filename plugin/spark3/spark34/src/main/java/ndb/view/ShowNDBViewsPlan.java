@@ -20,7 +20,7 @@ public class ShowNDBViewsPlan extends LogicalPlan
     private ShowNDBViewsPlan(final ShowViews original) {
         super();
         this.original = original;
-        cachedOutput = ShowViews.getOutputAttrs();
+        cachedOutput = (scala.collection.immutable.Seq<Attribute>) ShowViews.getOutputAttrs();
     }
 
     @Override
@@ -42,7 +42,7 @@ public class ShowNDBViewsPlan extends LogicalPlan
 
     // TODO: these `withX` methods should return a modified *copy*
     @Override
-    public LogicalPlan withNewChildrenInternal(IndexedSeq<LogicalPlan> newChildren) {
+    public LogicalPlan withNewChildrenInternal(scala.collection.IndexedSeq<LogicalPlan> newChildren) {
         {
             this.children = newChildren;
             return this;

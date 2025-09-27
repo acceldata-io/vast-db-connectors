@@ -30,6 +30,7 @@ import org.apache.spark.sql.execution.datasources.v2.DataSourceV2ScanRelation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.collection.immutable.List;
+import scala.collection.immutable.List$;
 import scala.collection.mutable.Builder;
 
 import static com.vastdata.spark.VastDelete.DELETE_ERROR_SUPPLIER;

@@ -13,6 +13,7 @@ import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
 import scala.collection.immutable.IndexedSeq;
 import scala.collection.immutable.List;
+import scala.collection.immutable.List$;
 import scala.collection.immutable.Seq;
 import scala.collection.mutable.Builder;
 
@@ -39,7 +40,7 @@ public class DropNDBViewPlan
         super();
         this.ifExists = ifExists;
         this.original = original;
-        this.children = original.children();
+        this.children = (scala.collection.immutable.Seq<LogicalPlan>) original.children();
     }
 
     @Override
@@ -60,7 +61,7 @@ public class DropNDBViewPlan
     }
 
     @Override
-    public LogicalPlan withNewChildrenInternal(IndexedSeq<LogicalPlan> newChildren) {
+    public LogicalPlan withNewChildrenInternal(scala.collection.IndexedSeq<LogicalPlan> newChildren) {
         {
             this.children = newChildren;
             return this;
