@@ -15,7 +15,7 @@ import org.apache.spark.sql.execution.SparkPlan;
 import org.apache.spark.sql.execution.datasources.v2.V2CommandExec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.collection.JavaConverters;
+import scala.collection.immutable.List$;
 import scala.collection.immutable.IndexedSeq;
 import scala.collection.immutable.Seq;
 import spark.sql.catalog.ndb.InitializedVastCatalog;
@@ -54,8 +54,9 @@ public class DropNDBViewCommand
         }
         final InternalRow row = new GenericInternalRow(1);
         row.update(0, dropped);
-        final scala.collection.immutable.Seq<InternalRow> result = (scala.collection.immutable.Seq<InternalRow>) JavaConverters.asScalaIteratorConverter(
-                Arrays.stream(new InternalRow[]{row}).iterator()).asScala().toSeq();
+        scala.collection.mutable.Builder<InternalRow, scala.collection.immutable.List<InternalRow>> builder = List$.MODULE$.newBuilder();
+        builder.$plus$eq(row);
+        final scala.collection.immutable.Seq<InternalRow> result = builder.result();
         LOG.debug("run() returning {}", result);
         return result;
     }

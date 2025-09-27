@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Function1;
 import scala.PartialFunction;
-import scala.collection.JavaConverters;
+import scala.collection.immutable.List$;
 import scala.collection.immutable.Seq;
 
 import java.util.stream.IntStream;
@@ -57,7 +57,9 @@ public class NDBRowLevelResolutionRule
                             javaList.add(CharVarcharUtils.cleanAttrMetadata(attr));
                             return null;
                         });
-                        scala.collection.immutable.Seq<AttributeReference> newOutput = (scala.collection.immutable.Seq<AttributeReference>) JavaConverters.asScalaIteratorConverter(javaList.iterator()).asScala().toList();
+                        scala.collection.mutable.Builder<AttributeReference, scala.collection.immutable.List<AttributeReference>> builder = List$.MODULE$.newBuilder();
+                        javaList.forEach(builder::$plus$eq);
+                        scala.collection.immutable.Seq<AttributeReference> newOutput = builder.result();
                         LOG.info("NDBResolutionRule UpdateTable: new output: {}", newOutput);
                         return (LogicalPlan) v2Relation.copy(v2Relation.table(), newOutput, v2Relation.catalog(), v2Relation.identifier(), v2Relation.options());
                     }
@@ -83,7 +85,9 @@ public class NDBRowLevelResolutionRule
                         return null;
                     });
                     refsWithRowID.add(rowIdAttRef);
-                    scala.collection.immutable.Seq<AttributeReference> newOutput = (scala.collection.immutable.Seq<AttributeReference>) JavaConverters.asScalaIteratorConverter(refsWithRowID.iterator()).asScala().toList();
+                    scala.collection.mutable.Builder<AttributeReference, scala.collection.immutable.List<AttributeReference>> builder2 = List$.MODULE$.newBuilder();
+                    refsWithRowID.forEach(builder2::$plus$eq);
+                    scala.collection.immutable.Seq<AttributeReference> newOutput = builder2.result();
                     LOG.info("NDBResolutionRule DeleteFromTable: new output: {}", newOutput);
                     return (LogicalPlan) v2Relation.copy(v2Relation.table(), newOutput, v2Relation.catalog(), v2Relation.identifier(), v2Relation.options());
                 }

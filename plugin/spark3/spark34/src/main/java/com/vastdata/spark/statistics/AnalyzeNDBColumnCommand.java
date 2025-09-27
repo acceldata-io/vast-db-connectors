@@ -42,7 +42,7 @@ import java.util.stream.IntStream;
 import static com.vastdata.spark.statistics.StatsUtils.getVastClient;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
-import static scala.collection.JavaConverters.seqAsJavaList;
+import scala.collection.JavaConversions;
 
 public class AnalyzeNDBColumnCommand
         extends V2CommandExec
@@ -63,7 +63,7 @@ public class AnalyzeNDBColumnCommand
             this.columnNames = emptyList();
         }
         else {
-            this.columnNames = seqAsJavaList(columnNames.get());
+            this.columnNames = JavaConversions.seqAsJavaList(columnNames.get());
         }
     }
 

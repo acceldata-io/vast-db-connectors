@@ -43,7 +43,7 @@ import static com.vastdata.spark.statistics.StatsUtils.getVastClient;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;;
 import static spark.sql.catalog.ndb.TypeUtil.SPARK_ROW_ID_FIELD;
-import static scala.collection.JavaConverters.seqAsJavaList;
+import scala.collection.JavaConversions;
 
 public class AnalyzeNDBColumnCommand
         extends V2CommandExec
@@ -64,7 +64,7 @@ public class AnalyzeNDBColumnCommand
             this.columnNames = emptyList();
         }
         else {
-            this.columnNames = seqAsJavaList(columnNames.get());
+            this.columnNames = JavaConversions.seqAsJavaList(columnNames.get());
         }
         LOG.info("column names: {}",this. columnNames);
     }
