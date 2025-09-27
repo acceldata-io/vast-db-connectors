@@ -47,7 +47,7 @@
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-scala_2.13</artifactId>
+            <artifactId>jackson-module-scala_2.12</artifactId>
             <version>${dep.jackson.version}</version>
         </dependency>
         <dependency>
@@ -84,43 +84,43 @@
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-catalyst_2.13</artifactId>
+            <artifactId>spark-catalyst_2.12</artifactId>
             <version>${spark.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-common-utils_2.13</artifactId>
+            <artifactId>spark-common-utils_2.12</artifactId>
             <version>${spark.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_2.13</artifactId>
+            <artifactId>spark-core_2.12</artifactId>
             <version>${spark.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-network-common_2.13</artifactId>
+            <artifactId>spark-network-common_2.12</artifactId>
             <version>${spark.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_2.13</artifactId>
+            <artifactId>spark-sql_2.12</artifactId>
             <version>${spark.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql-api_2.13</artifactId>
+            <artifactId>spark-sql-api_2.12</artifactId>
             <version>${spark.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-unsafe_2.13</artifactId>
+            <artifactId>spark-unsafe_2.12</artifactId>
             <version>${spark.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -215,7 +215,7 @@
                         <configuration>
                             <failOnWarning>false</failOnWarning>
                             <ignoredDependencies>
-                                <ignoredDependency>org.apache.spark:spark-VDB-thriftserver_2.13</ignoredDependency>
+                                <ignoredDependency>org.apache.spark:spark-VDB-thriftserver_2.12</ignoredDependency>
                                 <ignoredDependency>io.airlift:http-client</ignoredDependency>
                                 <ignoredDependency>com.amazonaws:aws-java-sdk-core</ignoredDependency>
                             </ignoredDependencies>
