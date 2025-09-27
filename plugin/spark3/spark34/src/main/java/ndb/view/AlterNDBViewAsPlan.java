@@ -26,7 +26,7 @@ public class AlterNDBViewAsPlan
     {
         super();
         originalText = original.originalText();
-        this.children = (Seq<LogicalPlan>) original.children().toSeq();
+        this.children = original.children();
     }
 
     @Override
@@ -42,7 +42,7 @@ public class AlterNDBViewAsPlan
             return EMPTY_LOGICAL_PLAN_SEQ;
         }
         else {
-            return children.toSeq();
+            return (Seq<LogicalPlan>) children;
         }
     }
 

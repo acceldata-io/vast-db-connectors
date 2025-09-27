@@ -39,7 +39,7 @@ public class DropNDBViewPlan
         super();
         this.ifExists = ifExists;
         this.original = original;
-        this.children = (Seq<LogicalPlan>) original.children().toSeq();
+        this.children = original.children();
     }
 
     @Override
@@ -55,7 +55,7 @@ public class DropNDBViewPlan
             return EMPTY_LOGICAL_PLAN_SEQ;
         }
         else {
-            return children.toSeq();
+            return (Seq<LogicalPlan>) children;
         }
     }
 

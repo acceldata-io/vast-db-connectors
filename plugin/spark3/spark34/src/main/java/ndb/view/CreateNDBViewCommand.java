@@ -69,7 +69,7 @@ public class CreateNDBViewCommand
             return (Seq<SparkPlan>) scala.collection.immutable.Seq$.MODULE$.<SparkPlan>empty();
         }
         else {
-            return children.toSeq();
+            return (Seq<SparkPlan>) children;
         }
     }
 

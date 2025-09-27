@@ -36,7 +36,7 @@ public class ShowNDBViewsPlan extends LogicalPlan
             return (Seq<LogicalPlan>) scala.collection.immutable.Seq$.MODULE$.<LogicalPlan>empty();
         }
         else {
-            return children.toSeq();
+            return (Seq<LogicalPlan>) children;
         }
     }
 
