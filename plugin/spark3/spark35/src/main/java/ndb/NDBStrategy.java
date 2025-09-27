@@ -37,7 +37,7 @@ import scala.collection.mutable.Builder;
 public class NDBStrategy extends SparkStrategy
 {
     private static final Logger LOG = LoggerFactory.getLogger(NDBStrategy.class);
-    public static final List<SparkPlan> EMPTY_RESULT_SEQ = List$.MODULE$.<SparkPlan>newBuilder().result();
+    public static final scala.collection.Seq<SparkPlan> EMPTY_RESULT_SEQ = (scala.collection.Seq<SparkPlan>) List$.MODULE$.<SparkPlan>newBuilder().result();
     private final SparkSession session;
 
     public NDBStrategy(SparkSession session) {
@@ -45,7 +45,7 @@ public class NDBStrategy extends SparkStrategy
     }
 
     @Override
-    public scala.collection.immutable.Seq<SparkPlan> apply(LogicalPlan plan)
+    public scala.collection.Seq<SparkPlan> apply(LogicalPlan plan)
     {
         if (plan instanceof ShowColumns) {
             ShowNDBTableColumnsCommand ndbPlan = ShowNDBTableColumnsCommand.instance((ShowColumns) plan);
@@ -104,7 +104,7 @@ public class NDBStrategy extends SparkStrategy
         return EMPTY_RESULT_SEQ;
     }
 
-    private scala.collection.immutable.Seq<SparkPlan> planToResultImmutableSeq(SparkPlan plan)
+    private scala.collection.Seq<SparkPlan> planToResultImmutableSeq(SparkPlan plan)
     {
         Builder<SparkPlan, List<SparkPlan>> builder = List$.MODULE$.newBuilder();
         builder.$plus$eq(plan);
