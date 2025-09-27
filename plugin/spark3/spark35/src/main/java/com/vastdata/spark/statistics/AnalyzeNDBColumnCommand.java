@@ -14,6 +14,7 @@ import org.apache.spark.sql.catalyst.expressions.AttributeMap;
 import org.apache.spark.sql.catalyst.expressions.AttributeMap$;
 import org.apache.spark.sql.catalyst.plans.logical.AnalyzeColumn;
 import org.apache.spark.sql.catalyst.plans.logical.ColumnStat;
+import org.apache.spark.sql.catalyst.plans.logical.Histogram;
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan;
 import org.apache.spark.sql.catalyst.plans.logical.Statistics;
 import org.apache.spark.sql.execution.LeafExecNode;
@@ -36,13 +37,11 @@ import scala.math.BigInt;
 
 import java.util.HashMap;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
 import static com.vastdata.spark.statistics.StatsUtils.getVastClient;
 import static java.lang.String.format;
-import static java.util.Collections.emptyList;;
-import static spark.sql.catalog.ndb.TypeUtil.SPARK_ROW_ID_FIELD;
+import static java.util.Collections.emptyList;
 import scala.collection.JavaConversions;
 
 public class AnalyzeNDBColumnCommand
@@ -56,7 +55,7 @@ public class AnalyzeNDBColumnCommand
     private final VastTable table;
     private final java.util.List<String> columnNames;
 
-    private AnalyzeNDBColumnCommand(ResolvedTable relation, Option<scala.collection.immutable.Seq<String>> columnNames) {
+    private AnalyzeNDBColumnCommand(ResolvedTable relation, Option<Seq<String>> columnNames) {
         super();
         this.relation = relation;
         this.table = (VastTable) relation.table();
@@ -66,7 +65,6 @@ public class AnalyzeNDBColumnCommand
         else {
             this.columnNames = JavaConversions.seqAsJavaList(columnNames.get());
         }
-        LOG.info("column names: {}",this. columnNames);
     }
 
     @Override
@@ -80,65 +78,49 @@ public class AnalyzeNDBColumnCommand
         return (Seq<SparkPlan>) scala.collection.immutable.Seq$.MODULE$.<SparkPlan>empty();
     }
 
-    public SparkPlan withNewChildrenInternal(IndexedSeq<SparkPlan> newChildren)
+    @Override
+    public SparkPlan withNewChildrenInternal(scala.collection.IndexedSeq<SparkPlan> newChildren)
     {
-        return this;
+        return null;
     }
 
     @Override
     public Seq<InternalRow> run() {
-        SparkSession session = session();
-        LogicalPlan rel = session.table(relation.name()).logicalPlan();
-        scala.collection.immutable.Seq<Attribute> columns = (scala.collection.immutable.Seq<Attribute>) rel.output().toSeq();
-        Builder<Attribute, List<Attribute>> newOutputBuilder = List.newBuilder();
-        IntStream.range(0, columns.size()).mapToObj(columns::apply).filter(ar -> {
-            if (!columnNames.contains( ar.name())) {
-                return false;
-            }
-            AtomicBoolean isRowId = new AtomicBoolean(false);
-            ar.references().foreach(ref -> {
-                if (ref.name().equals(SPARK_ROW_ID_FIELD.name())) {
-                    isRowId.set(true);
-                    LOG.info("ref name: {}", ref.name());
-                }
-                return null;
-            });
-            return !isRowId.get();
-        }).forEach(newOutputBuilder::$plus$eq);
+        final SparkSession session = session();
+        final LogicalPlan rel = session.table(relation.name()).logicalPlan();
+        final scala.collection.immutable.Seq<Attribute> columns = (scala.collection.immutable.Seq<Attribute>) rel.output();
+        Builder<Attribute, List<Attribute>> newOutputBuilder = List$.MODULE$.newBuilder();
+        IntStream.range(0, columns.size()).mapToObj(columns::apply).filter(ar -> { return columnNames.contains( ar.name()); }).forEach(newOutputBuilder::$plus$eq);
         List<Attribute> newColumns = newOutputBuilder.result();
+
         LOG.info("Running analyze command with columns: {}", newColumns);
-        Tuple2<Object, Map<Attribute, ColumnStat>> calculatedStats = CommandUtils$.MODULE$.computeColumnStats(session, rel, newColumns);
-        long rowCount = (Long) calculatedStats._1;
-        VastStatistics tableStats = StatsUtils.getTableLevelStats(getVastClient(), this.table.getTableMD().schemaName, this.table.getTableMD().tableName);
-        BigInt sizeInBytes = BigInt.apply(tableStats.getSizeInBytes());
+        final Tuple2<Object, Map<Attribute, ColumnStat>> calculatedStats = CommandUtils$.MODULE$.computeColumnStats(session, rel, newColumns);
+        final long rowCount = (Long) calculatedStats._1;
+        final VastStatistics tableStats = StatsUtils.getTableLevelStats(getVastClient(), this.table.getTableMD().schemaName, this.table.getTableMD().tableName);
+        final BigInt sizeInBytes = BigInt.apply(tableStats.getSizeInBytes());
         LOG.info("Fetched table level statistics for table {}, statistics: numRows={}, sizeInBytes={}",
                 this.table.getTableMD().tableName, tableStats.getNumRows(), tableStats.getSizeInBytes());
-        AttributeMap<ColumnStat> columnStats = getColumnStatAttributeMap(calculatedStats._2);
-        Statistics stats = new Statistics(sizeInBytes, Option.apply(BigInt.apply(rowCount)), columnStats, false);
+        final AttributeMap<ColumnStat> columnStats = getColumnStatAttributeMap(calculatedStats._2);
+        final Statistics stats = new Statistics(sizeInBytes, Option.apply(BigInt.apply(rowCount)), columnStats, false);
         SparkVastStatisticsManager.getInstance().setTableStatistics(table, stats);
         LOG.info("Saved statistics for table {} to spark persistent statistics: {}, {}", this.table.name(), stats.simpleString(), stats.attributeStats());
-        if (LOG.isDebugEnabled()) {
-            stats.attributeStats().foreach(tup -> {
-                Attribute attribute = tup._1;
-                ColumnStat columnStat = tup._2;
-                LOG.debug("Statistics for column: {}", attribute);
-                Object maxValue = getValue(columnStat.max());
-                if (maxValue == null) {
-                    LOG.debug("max = null");
-                }
-                else {
-                    LOG.debug("max = {} of class: {}", maxValue, maxValue.getClass());
-                }
-                Object minValue = getValue(columnStat.min());
-                if (minValue == null) {
-                    LOG.debug("min = null");
-                }
-                else {
-                    LOG.debug("min = {} of class: {}", minValue, minValue.getClass());
-                }
-                return null;
-            });
-        }
+
+        stats.attributeStats().foreach(tup -> {
+            final Attribute attribute = tup._1;
+            final ColumnStat columnStat = tup._2;
+            LOG.info("Printing Statistics details for column: {}", attribute);
+            final Object maxValue = getValue(columnStat.max());
+            final Object minValue = getValue(columnStat.min());
+            String histogramsBinsLength = "Not available";
+            final Option<Histogram> histogramOption = columnStat.histogram();
+            if (histogramOption != null && histogramOption.nonEmpty()) {
+                final Histogram colHist = histogramOption.get();
+                histogramsBinsLength = String.valueOf(colHist.bins().length);
+            }
+            LOG.info("Column {} Stats - min: {}, max: {}, histogram bins: {}", attribute, minValue, maxValue, histogramsBinsLength);
+            return null;
+        });
+
         return (Seq<InternalRow>) Seq$.MODULE$.<InternalRow>newBuilder().result();
     }
 
@@ -199,7 +181,10 @@ public class AnalyzeNDBColumnCommand
         // TODO: support "ANALYZE TABLE t COMPUTE STATISTICS FOR COLUMNS c1,...cN" (see AnalyzeColumn#columnNames)
         LogicalPlan child = plan.child();
         if (child instanceof ResolvedTable) {
-            return new AnalyzeNDBColumnCommand((ResolvedTable) child, (Option<scala.collection.immutable.Seq<String>>) plan.columnNames());
+            scala.Option<scala.collection.immutable.Seq<String>> columnNames = plan.columnNames().isEmpty() ? 
+                scala.Option.empty() : 
+                scala.Option.apply((scala.collection.immutable.Seq<String>) plan.columnNames().get());
+            return new AnalyzeNDBColumnCommand((ResolvedTable) child, columnNames);
         }
         else {
             throw new RuntimeException(format("Unexpected child plan type: %s", plan));

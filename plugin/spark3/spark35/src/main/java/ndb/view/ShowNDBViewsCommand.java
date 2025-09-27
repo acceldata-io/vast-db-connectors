@@ -91,13 +91,14 @@ public class ShowNDBViewsCommand
             return (Seq<SparkPlan>) scala.collection.immutable.Seq$.MODULE$.<SparkPlan>empty();
         }
         else {
-            return children.toSeq();
+            return (Seq<SparkPlan>) children;
         }
     }
 
-    public SparkPlan withNewChildrenInternal(IndexedSeq<SparkPlan> newChildren)
+    @Override
+    public SparkPlan withNewChildrenInternal(scala.collection.IndexedSeq<SparkPlan> newChildren)
     {
-        this.children = newChildren;
+        this.children = (scala.collection.immutable.IndexedSeq<SparkPlan>) newChildren;
         return this;
     }
 

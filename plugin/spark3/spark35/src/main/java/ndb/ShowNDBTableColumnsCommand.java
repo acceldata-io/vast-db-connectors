@@ -30,7 +30,6 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import static java.lang.String.format;
-import static spark.sql.catalog.ndb.TypeUtil.SPARK_ROW_ID_FIELD;
 
 public class ShowNDBTableColumnsCommand
         extends V2CommandExec
@@ -44,7 +43,7 @@ public class ShowNDBTableColumnsCommand
         genericInternalRow.update(1, structField.dataType());
         genericInternalRow.update(2, structField.nullable());
         genericInternalRow.update(3, structField.metadata());
-        builder.addOne(genericInternalRow);
+        builder.$plus$eq(genericInternalRow);
     };
     private final Seq<Attribute> columns;
     private IndexedSeq<SparkPlan> children = null;
@@ -86,13 +85,14 @@ public class ShowNDBTableColumnsCommand
             return (scala.collection.immutable.Seq<SparkPlan>) scala.collection.immutable.Seq$.MODULE$.<SparkPlan>empty();
         }
         else {
-            return children.toSeq();
+            return (Seq<SparkPlan>) children;
         }
     }
 
-    public SparkPlan withNewChildrenInternal(IndexedSeq<SparkPlan> newChildren)
+    @Override
+    public SparkPlan withNewChildrenInternal(scala.collection.IndexedSeq<SparkPlan> newChildren)
     {
-        this.children = newChildren;
+        this.children = (scala.collection.immutable.IndexedSeq<SparkPlan>) newChildren;
         return this;
     }
 
@@ -119,8 +119,7 @@ public class ShowNDBTableColumnsCommand
         LogicalPlan child = plan.child();
         if (child instanceof ResolvedTable) {
             ResolvedTable resolvedTable = (ResolvedTable) child;
-            Seq<Attribute> attributeSeq = (Seq<Attribute>) resolvedTable.outputAttributes().filter(a -> !SPARK_ROW_ID_FIELD.name().equals(a.name()));
-            return new ShowNDBTableColumnsCommand(attributeSeq);
+            return new ShowNDBTableColumnsCommand((scala.collection.immutable.Seq<Attribute>) resolvedTable.outputAttributes());
         }
         else {
             throw new RuntimeException(format("Unexpected child plan type: %s", plan.toJSON()));

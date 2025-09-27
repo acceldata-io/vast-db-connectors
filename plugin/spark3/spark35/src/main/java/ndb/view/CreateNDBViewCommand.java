@@ -13,6 +13,7 @@ import org.apache.spark.sql.catalyst.expressions.Attribute;
 import org.apache.spark.sql.catalyst.plans.logical.CreateView;
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan;
 import org.apache.spark.sql.connector.catalog.Identifier;
+
 import org.apache.spark.sql.execution.LeafExecNode;
 import org.apache.spark.sql.execution.SparkPlan;
 import org.apache.spark.sql.execution.datasources.v2.V2CommandExec;
@@ -52,30 +53,30 @@ public class CreateNDBViewCommand
         } catch (final ViewAlreadyExistsException | NoSuchNamespaceException error) {
             throw new RuntimeException(error);
         }
-        return (Seq<InternalRow>) Seq$.MODULE$.<InternalRow>empty();
+        return (Seq<InternalRow>) scala.collection.immutable.Seq$.MODULE$.<InternalRow>empty();
     }
 
     @Override
     public Seq<Attribute> output()
     {
-        return (Seq<Attribute>) Seq$.MODULE$.<Attribute>empty();
+        return (Seq<Attribute>) scala.collection.immutable.Seq$.MODULE$.<Attribute>empty();
     }
 
     @Override
     public Seq<SparkPlan> children()
     {
         if (this.children == null) {
-            return (Seq<SparkPlan>) Seq$.MODULE$.<SparkPlan>empty();
+            return (Seq<SparkPlan>) scala.collection.immutable.Seq$.MODULE$.<SparkPlan>empty();
         }
         else {
-            return children.toSeq();
+            return (Seq<SparkPlan>) children;
         }
     }
 
     @Override
-    public SparkPlan withNewChildrenInternal(IndexedSeq<SparkPlan> newChildren)
+    public SparkPlan withNewChildrenInternal(scala.collection.IndexedSeq<SparkPlan> newChildren)
     {
-        this.children = (Seq<SparkPlan>) newChildren.toSeq();
+        this.children = (scala.collection.immutable.Seq<SparkPlan>) newChildren;
         return this;
     }
 
@@ -110,7 +111,7 @@ public class CreateNDBViewCommand
         String origRawViewSqlDefinition = originalCreateView.originalText().get();
         SparkViewMetadata sparkViewMetadata = new SparkViewMetadata(
                 identifier, replace, allowExisting, originalCreateView.comment(),
-                originalCreateView.userSpecifiedColumns(), originalCreateView.properties(), origRawViewSqlDefinition,
+                (scala.collection.immutable.Seq<scala.Tuple2<String, scala.Option<String>>>) originalCreateView.userSpecifiedColumns(), originalCreateView.properties(), origRawViewSqlDefinition,
                 queryPlan.schema(), plan.getCurrentCatalog(), plan.getCurrentNamespace());
         LOG.debug("CreateNDBViewCommand sparkViewMetadata: {}", sparkViewMetadata);
         return new CreateNDBViewCommand(sparkViewMetadata);

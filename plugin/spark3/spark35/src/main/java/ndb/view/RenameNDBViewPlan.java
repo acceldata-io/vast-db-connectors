@@ -21,7 +21,7 @@ public class RenameNDBViewPlan
     private RenameNDBViewPlan(final RenameTable original) {
         super();
         this.original = original;
-        this.children = (Seq<LogicalPlan>) original.children().toSeq();
+        this.children = (scala.collection.immutable.Seq<LogicalPlan>) original.children();
     }
 
     @Override
@@ -37,14 +37,14 @@ public class RenameNDBViewPlan
             return EMPTY_LOGICAL_PLAN_SEQ;
         }
         else {
-            return children;
+            return (Seq<LogicalPlan>) children;
         }
     }
 
     @Override
-    public LogicalPlan withNewChildrenInternal(IndexedSeq<LogicalPlan> newChildren) {
+    public LogicalPlan withNewChildrenInternal(scala.collection.IndexedSeq<LogicalPlan> newChildren) {
         {
-            this.children = (Seq<LogicalPlan>) newChildren.toSeq();
+            this.children = (scala.collection.immutable.Seq<LogicalPlan>) newChildren;
             return this;
         }
     }

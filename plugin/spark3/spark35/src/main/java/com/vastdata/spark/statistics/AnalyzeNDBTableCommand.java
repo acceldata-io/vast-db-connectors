@@ -48,8 +48,9 @@ public class AnalyzeNDBTableCommand
         return (Seq<SparkPlan>) scala.collection.immutable.Seq$.MODULE$.<SparkPlan>empty();
     }
 
-    public SparkPlan withNewChildrenInternal(IndexedSeq<SparkPlan> newChildren) {
-        return this;
+    @Override
+    public SparkPlan withNewChildrenInternal(scala.collection.IndexedSeq<SparkPlan> newChildren) {
+        return null;
     }
 
     @Override

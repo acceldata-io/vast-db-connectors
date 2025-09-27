@@ -27,6 +27,7 @@ import scala.Option;
 import scala.Tuple2;
 import scala.collection.immutable.IndexedSeq;
 import scala.collection.immutable.Map;
+import scala.collection.immutable.Map$;
 import scala.collection.immutable.Seq;
 import scala.collection.immutable.Seq$;
 import scala.collection.mutable.Builder;
@@ -70,12 +71,12 @@ public class RenameNDBViewCommand
                     String comment = vastView.properties().get("comment");
                     String[] columnAliases = vastView.columnAliases();
                     String[] columnComments = vastView.columnComments();
-                    Builder<Tuple2<String, String>, Map<String, String>> mapBuilder = Map.newBuilder();
+                    Builder<Tuple2<String, String>, Map<String, String>> mapBuilder = Map$.MODULE$.newBuilder();
                     java.util.Map<String, String> currentProperties = vastView.properties();
                     currentProperties.entrySet().stream()
                             .filter(e -> !e.getKey().equals("comment"))
                             .map(e -> Tuple2.apply(e.getKey(), e.getValue()))
-                            .forEach(mapBuilder::addOne);
+                            .forEach(mapBuilder::$plus$eq);
                     Map<String, String> propsScalaMap = mapBuilder.result();
                     StructType structType = session.sql(vastView.query()).logicalPlan().schema();
                     SparkViewMetadata ctx = new SparkViewMetadata(newIdentifier, false, false,
@@ -101,23 +102,24 @@ public class RenameNDBViewCommand
 
     @Override
     public Seq<Attribute> output() {
-        return (Seq<Attribute>) Seq$.MODULE$.<Attribute>empty();
+        return (Seq<Attribute>) scala.collection.immutable.Seq$.MODULE$.<Attribute>empty();
     }
 
     @Override
     public Seq<SparkPlan> children()
     {
         if (this.children == null) {
-            return (Seq<SparkPlan>) Seq$.MODULE$.<SparkPlan>empty();
+            return (Seq<SparkPlan>) scala.collection.immutable.Seq$.MODULE$.<SparkPlan>empty();
         }
         else {
-            return children.toSeq();
+            return (Seq<SparkPlan>) children;
         }
     }
 
-    public SparkPlan withNewChildrenInternal(IndexedSeq<SparkPlan> newChildren)
+    @Override
+    public SparkPlan withNewChildrenInternal(scala.collection.IndexedSeq<SparkPlan> newChildren)
     {
-        this.children = (Seq<SparkPlan>) newChildren.toSeq();
+        this.children = (scala.collection.immutable.Seq<SparkPlan>) newChildren;
         return this;
     }
 
@@ -140,7 +142,7 @@ public class RenameNDBViewCommand
         LogicalPlan child = plan.children().apply(0);
         if (child instanceof ResolvedPersistentView) {
             ResolvedPersistentView resolvedPersistentView = (ResolvedPersistentView) child;
-            scala.collection.immutable.Seq<String> newNameSeq = (scala.collection.immutable.Seq<String>) plan.original.newName().toSeq();
+            scala.collection.immutable.Seq<String> newNameSeq = (scala.collection.immutable.Seq<String>) plan.original.newName();
             String newName;
             if (newNameSeq.size() == 1) {
                 newName = newNameSeq.apply(0);

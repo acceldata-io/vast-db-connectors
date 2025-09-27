@@ -13,6 +13,7 @@ import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
 import scala.collection.immutable.IndexedSeq;
 import scala.collection.immutable.List;
+import scala.collection.immutable.List$;
 import scala.collection.immutable.Seq;
 import scala.collection.mutable.Builder;
 
@@ -23,11 +24,11 @@ public class DropNDBViewPlan
 {
     public static final Seq<Attribute> OUTPUT;
     static {
-        Builder<Attribute, List<Attribute>> b = List.newBuilder();
+        Builder<Attribute, List<Attribute>> b = List$.MODULE$.newBuilder();
         Attribute resAttr = new AttributeReference("dropped",
                 DataTypes.BooleanType, true, Metadata.empty(), ExprId.apply(0),
                 (scala.collection.immutable.Seq<String>) scala.collection.immutable.Seq$.MODULE$.<String>empty());
-        b.addOne(resAttr);
+        b.$plus$eq(resAttr);
         OUTPUT = b.result();
     }
     private Seq<LogicalPlan> children;
@@ -39,7 +40,7 @@ public class DropNDBViewPlan
         super();
         this.ifExists = ifExists;
         this.original = original;
-        this.children = (Seq<LogicalPlan>) original.children().toSeq();
+        this.children = (scala.collection.immutable.Seq<LogicalPlan>) original.children();
     }
 
     @Override
@@ -55,14 +56,14 @@ public class DropNDBViewPlan
             return EMPTY_LOGICAL_PLAN_SEQ;
         }
         else {
-            return children;
+            return (Seq<LogicalPlan>) children;
         }
     }
 
     @Override
-    public LogicalPlan withNewChildrenInternal(IndexedSeq<LogicalPlan> newChildren) {
+    public LogicalPlan withNewChildrenInternal(scala.collection.IndexedSeq<LogicalPlan> newChildren) {
         {
-            this.children = (Seq<LogicalPlan>) newChildren.toSeq();
+            this.children = (scala.collection.immutable.Seq<LogicalPlan>) newChildren;
             return this;
         }
     }

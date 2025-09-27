@@ -26,7 +26,7 @@ public class AlterNDBViewAsPlan
     {
         super();
         originalText = original.originalText();
-        this.children = (Seq<LogicalPlan>) original.children().toSeq();
+        this.children = (scala.collection.immutable.Seq<LogicalPlan>) original.children();
     }
 
     @Override
@@ -42,14 +42,14 @@ public class AlterNDBViewAsPlan
             return EMPTY_LOGICAL_PLAN_SEQ;
         }
         else {
-            return children;
+            return (Seq<LogicalPlan>) children;
         }
     }
 
     @Override
-    public LogicalPlan withNewChildrenInternal(IndexedSeq<LogicalPlan> newChildren) {
+    public LogicalPlan withNewChildrenInternal(scala.collection.IndexedSeq<LogicalPlan> newChildren) {
         {
-            this.children = (Seq<LogicalPlan>) newChildren.toSeq();
+            this.children = (scala.collection.immutable.Seq<LogicalPlan>) newChildren;
             return this;
         }
     }
@@ -83,7 +83,17 @@ public class AlterNDBViewAsPlan
                 return p;
             }
         };
-        PartialFunction<LogicalPlan, LogicalPlan> transformer = PartialFunction.fromFunction(resolveViewFunc);
+        PartialFunction<LogicalPlan, LogicalPlan> transformer = new PartialFunction<LogicalPlan, LogicalPlan>() {
+            @Override
+            public boolean isDefinedAt(LogicalPlan x) {
+                return true;
+            }
+            
+            @Override
+            public LogicalPlan apply(LogicalPlan x) {
+                return resolveViewFunc.apply(x);
+            }
+        };
         return new AlterNDBViewAsPlan((AlterViewAs) plan.resolveOperators(transformer));
     }
 

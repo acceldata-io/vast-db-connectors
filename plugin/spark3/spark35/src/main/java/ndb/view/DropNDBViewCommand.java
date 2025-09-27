@@ -71,12 +71,13 @@ public class DropNDBViewCommand
         if (this.children_ == null) {
             return (Seq<SparkPlan>) scala.collection.immutable.Seq$.MODULE$.<SparkPlan>empty();
         } else {
-            return children_.toSeq();
+            return (Seq<SparkPlan>) children_;
         }
     }
 
-    public SparkPlan withNewChildrenInternal(IndexedSeq<SparkPlan> newChildren) {
-        this.children_ = (Seq<SparkPlan>) newChildren.toSeq();
+    @Override
+    public SparkPlan withNewChildrenInternal(scala.collection.IndexedSeq<SparkPlan> newChildren) {
+        this.children_ = (scala.collection.immutable.Seq<SparkPlan>) newChildren;
         return this;
     }
 

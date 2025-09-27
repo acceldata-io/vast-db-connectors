@@ -19,24 +19,26 @@ import ndb.view.ShowNDBViewsPlan;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.catalyst.plans.logical.AnalyzeColumn;
 import org.apache.spark.sql.catalyst.plans.logical.AnalyzeTable;
-import org.apache.spark.sql.catalyst.plans.logical.CreateTableAsSelect;
+import org.apache.spark.sql.catalyst.plans.logical.DeleteFromTable;
+import org.apache.spark.sql.catalyst.plans.logical.Filter;
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan;
+import org.apache.spark.sql.catalyst.plans.logical.ReplaceData;
 import org.apache.spark.sql.catalyst.plans.logical.ShowColumns;
-import org.apache.spark.sql.catalyst.plans.logical.TableSpec;
 import org.apache.spark.sql.execution.SparkPlan;
 import org.apache.spark.sql.execution.SparkStrategy;
-import org.apache.spark.sql.execution.datasources.v2.CreateTableAsSelectExec;
+import org.apache.spark.sql.execution.datasources.v2.DataSourceV2ScanRelation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.collection.immutable.List;
+import scala.collection.immutable.List$;
 import scala.collection.mutable.Builder;
-import spark.sql.catalog.ndb.InitializedVastCatalog;
-import spark.sql.catalog.ndb.VastCatalogCreateColumnOverride;
+
+import static com.vastdata.spark.VastDelete.DELETE_ERROR_SUPPLIER;
 
 public class NDBStrategy extends SparkStrategy
 {
     private static final Logger LOG = LoggerFactory.getLogger(NDBStrategy.class);
-    public static final List<SparkPlan> EMPTY_RESULT_SEQ = List.<SparkPlan>newBuilder().result();
+    public static final List<SparkPlan> EMPTY_RESULT_SEQ = List$.MODULE$.<SparkPlan>newBuilder().result();
     private final SparkSession session;
 
     public NDBStrategy(SparkSession session) {
@@ -58,13 +60,26 @@ public class NDBStrategy extends SparkStrategy
             AnalyzeNDBColumnCommand ndbPlan = AnalyzeNDBColumnCommand.instance((AnalyzeColumn) plan);
             LOG.debug("Returning {} for AnalyzeColumn plan: {}", ndbPlan, plan);
             return planToResultImmutableSeq(ndbPlan);
-        } else if (plan instanceof CreateTableAsSelect) {
-            CreateTableAsSelect c = (CreateTableAsSelect) plan;
-            CreateTableAsSelectExec createTableAsSelectExec =
-                    new CreateTableAsSelectExec(new VastCatalogCreateColumnOverride(InitializedVastCatalog.getVastCatalog()),
-                            c.tableName(), c.partitioning(), c.query(), (TableSpec) c.tableSpec(), c.writeOptions(), c.ignoreIfExists());
-            LOG.debug("CreateTableAsSelectExec: {}", createTableAsSelectExec);
-            return planToResultImmutableSeq(createTableAsSelectExec);
+        }
+        else if (plan instanceof DeleteFromTable) {
+            DeleteFromTable deleteFromTable = (DeleteFromTable) plan;
+            LogicalPlan deleteChild = deleteFromTable.child();
+            if (deleteChild instanceof DataSourceV2ScanRelation) {
+                DataSourceV2ScanRelation v2ScanRelation = (DataSourceV2ScanRelation) deleteChild;
+                LOG.info("Deleting from datasource v2 relation={}, table={}", v2ScanRelation.relation(), v2ScanRelation.relation().table());
+            }
+            else {
+                LOG.error("Unexpected child for delete command: {}", deleteChild);
+                throw new IllegalArgumentException("Unexpected child for delete command: " + deleteChild.getClass());
+            }
+        }
+        else if (plan instanceof ReplaceData) { // when there is a filter that is not supported for pushdown, cos(x) for example
+            ReplaceData replaceData = (ReplaceData) plan;
+            LogicalPlan child = replaceData.child();
+            if (child instanceof Filter) {
+                Filter filter = (Filter) child;
+                throw DELETE_ERROR_SUPPLIER.apply(filter.condition());
+            }
         } else if (plan instanceof ShowNDBViewsPlan) {
             final ShowNDBViewsCommand command = ShowNDBViewsCommand.instance((ShowNDBViewsPlan) plan);
             LOG.info("Returning {} for ShowNDBViewsPlan: {}", command, plan);
@@ -86,14 +101,14 @@ public class NDBStrategy extends SparkStrategy
             LOG.info("Returning {} for AlterNDBViewAsPlan: {}", command, plan);
             return planToResultImmutableSeq(command);
         }
-        LOG.debug("{} not supported by NDBStrategy", plan.getClass().getCanonicalName());
+        LOG.info("{} not supported by NDBStrategy", plan.getClass().getCanonicalName());
         return EMPTY_RESULT_SEQ;
     }
 
     private scala.collection.immutable.Seq<SparkPlan> planToResultImmutableSeq(SparkPlan plan)
     {
-        Builder<SparkPlan, List<SparkPlan>> builder = List.newBuilder();
-        builder.addOne(plan);
+        Builder<SparkPlan, List<SparkPlan>> builder = List$.MODULE$.newBuilder();
+        builder.$plus$eq(plan);
         return builder.result();
     }
 }
