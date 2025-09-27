@@ -49,7 +49,7 @@ public class AlterNDBViewAsPlan
     @Override
     public LogicalPlan withNewChildrenInternal(scala.collection.IndexedSeq<LogicalPlan> newChildren) {
         {
-            this.children = newChildren;
+            this.children = (scala.collection.immutable.Seq<LogicalPlan>) newChildren;
             return this;
         }
     }

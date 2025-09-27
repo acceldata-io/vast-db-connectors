@@ -44,7 +44,7 @@ public class ShowNDBViewsPlan extends LogicalPlan
     @Override
     public LogicalPlan withNewChildrenInternal(scala.collection.IndexedSeq<LogicalPlan> newChildren) {
         {
-            this.children = newChildren;
+            this.children = (scala.collection.immutable.IndexedSeq<LogicalPlan>) newChildren;
             return this;
         }
     }

@@ -117,10 +117,9 @@ public class RenameNDBViewCommand
     }
 
     @Override
-    @Override
     public SparkPlan withNewChildrenInternal(scala.collection.IndexedSeq<SparkPlan> newChildren)
     {
-        this.children = newChildren;
+        this.children = (scala.collection.immutable.Seq<SparkPlan>) newChildren;
         return this;
     }
 

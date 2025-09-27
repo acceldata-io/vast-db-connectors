@@ -76,9 +76,8 @@ public class DropNDBViewCommand
     }
 
     @Override
-    @Override
     public SparkPlan withNewChildrenInternal(scala.collection.IndexedSeq<SparkPlan> newChildren) {
-        this.children_ = newChildren;
+        this.children_ = (scala.collection.immutable.Seq<SparkPlan>) newChildren;
         return this;
     }
 
