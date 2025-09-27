@@ -32,7 +32,7 @@ import scala.Function1;
 import scala.PartialFunction;
 import scala.collection.immutable.Seq;
 import scala.collection.immutable.Seq$;
-import scala.collection.immutable.Nil$;
+import scala.collection.immutable.List$;
 
 import static spark.sql.catalog.ndb.NDBRowLevelOperationIdentifier.adaptTableIdentifiersToRowLevelOp;
 
@@ -41,7 +41,7 @@ public class NDBParser
 {
     private static final Logger LOG = LoggerFactory.getLogger(NDBParser.class);
 
-    public static final Seq<LogicalPlan> EMPTY_LOGICAL_PLAN_SEQ = scala.collection.immutable.Nil$.MODULE$;
+    public static final Seq<LogicalPlan> EMPTY_LOGICAL_PLAN_SEQ = scala.collection.immutable.List$.MODULE$.<LogicalPlan>empty();
 
     private final SparkSession session;
     private final ParserInterface parser;
