@@ -42,9 +42,10 @@ public class ShowNDBViewsPlan extends LogicalPlan
 
     // TODO: these `withX` methods should return a modified *copy*
     @Override
-    public LogicalPlan withNewChildrenInternal(IndexedSeq<LogicalPlan> newChildren) {
+    @Override
+    public LogicalPlan withNewChildrenInternal(scala.collection.IndexedSeq<LogicalPlan> newChildren) {
         {
-            this.children = newChildren;
+            this.children = (scala.collection.immutable.IndexedSeq<LogicalPlan>) newChildren;
             return this;
         }
     }

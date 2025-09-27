@@ -67,7 +67,17 @@ public class NDBRowLevelResolutionRule
                         return lp;
                     }
                 };
-                PartialFunction<LogicalPlan, LogicalPlan> transformer = PartialFunction.fromFunction(func);
+                PartialFunction<LogicalPlan, LogicalPlan> transformer = new PartialFunction<LogicalPlan, LogicalPlan>() {
+            @Override
+            public boolean isDefinedAt(LogicalPlan x) {
+                return true;
+            }
+            
+            @Override
+            public LogicalPlan apply(LogicalPlan x) {
+                return func.apply(x);
+            }
+        };
                 LogicalPlan transformedTable = u.table().transform(transformer);
                 scala.collection.immutable.Seq<Assignment> newAssignments = (scala.collection.immutable.Seq<Assignment>) AssignmentUtils.alignUpdateAssignments(transformedTable.output(), u.assignments()).toSeq();
                 return u.copy(transformedTable, newAssignments, u.condition());
@@ -95,7 +105,17 @@ public class NDBRowLevelResolutionRule
                     return lp;
                 }
             };
-            PartialFunction<LogicalPlan, LogicalPlan> transformer = PartialFunction.fromFunction(func);
+            PartialFunction<LogicalPlan, LogicalPlan> transformer = new PartialFunction<LogicalPlan, LogicalPlan>() {
+            @Override
+            public boolean isDefinedAt(LogicalPlan x) {
+                return true;
+            }
+            
+            @Override
+            public LogicalPlan apply(LogicalPlan x) {
+                return func.apply(x);
+            }
+        };
             LogicalPlan transformedTable = d.table().transform(transformer);
             DeleteFromTable copy = d.copy(transformedTable, d.condition());
             LOG.debug("DeleteFromTable: {}", copy);

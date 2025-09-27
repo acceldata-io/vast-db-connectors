@@ -105,12 +105,12 @@ public class VastView implements View
                     }
                     else {
                         scala.collection.immutable.Map<String, Object> map = f.metadata().map();
-                        ReusableBuilder<Tuple2<String, Object>, HashMap<String, Object>> mdMapBuilder = HashMap$.MODULE$.newBuilder();
+                        scala.collection.mutable.Builder<Tuple2<String, Object>, HashMap<String, Object>> mdMapBuilder = HashMap$.MODULE$.newBuilder();
                         map.foreach(t -> {
-                            mdMapBuilder.addOne(t);
+                            mdMapBuilder.$plus$eq(t);
                             return null;
                         });
-                        mdMapBuilder.addOne(Tuple2.apply("comment", comment));
+                        mdMapBuilder.$plus$eq(Tuple2.apply("comment", comment));
                         newMD = new Metadata(mdMapBuilder.result());
                     }
                     if (Strings.isNullOrEmpty(alias)) {

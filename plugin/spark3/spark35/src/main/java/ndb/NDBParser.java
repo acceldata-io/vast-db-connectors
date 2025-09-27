@@ -1,7 +1,6 @@
 /*
  *  Copyright (C) Vast Data Ltd.
  */
-
 package ndb;
 
 import ndb.view.AlterNDBViewAsPlan;
@@ -36,9 +35,7 @@ import scala.collection.immutable.List$;
 
 import static spark.sql.catalog.ndb.NDBRowLevelOperationIdentifier.adaptTableIdentifiersToRowLevelOp;
 
-public class NDBParser
-        implements ParserInterface
-{
+public class NDBParser implements ParserInterface {
     private static final Logger LOG = LoggerFactory.getLogger(NDBParser.class);
 
     public static final Seq<LogicalPlan> EMPTY_LOGICAL_PLAN_SEQ = scala.collection.immutable.List$.MODULE$.<LogicalPlan>empty();
@@ -46,29 +43,38 @@ public class NDBParser
     private final SparkSession session;
     private final ParserInterface parser;
 
+
     public NDBParser(SparkSession sparkSession, ParserInterface parserInterface) {
         session = sparkSession;
         parser = parserInterface;
     }
 
     @Override
-    public LogicalPlan parsePlan(String sqlText)
-            throws ParseException
-    {
-        LogicalPlan original = parser.parsePlan(sqlText);
+    public LogicalPlan parsePlan(String sqlText) throws ParseException {
+        final LogicalPlan original = parser.parsePlan(sqlText);
         if (original instanceof DeleteFromTable || original instanceof UpdateTable) {
             LOG.debug("NDBParser.parsePlan original LogicalPlan is {}: {}", original.getClass(), original);
             Function1<LogicalPlan, LogicalPlan> func = p -> {
                 if (p instanceof UnresolvedRelation) {
                     UnresolvedRelation unresolvedRel = (UnresolvedRelation) p;
-                    Seq<String> adaptedIdentifiers = adaptTableIdentifiersToRowLevelOp(unresolvedRel.multipartIdentifier());
+                    scala.collection.immutable.Seq<String> adaptedIdentifiers = adaptTableIdentifiersToRowLevelOp((scala.collection.immutable.Seq<String>) unresolvedRel.multipartIdentifier());
                     return unresolvedRel.copy(adaptedIdentifiers, unresolvedRel.options(), unresolvedRel.isStreaming());
                 }
                 else {
-                     return p;
+                    return p;
                 }
             };
-            PartialFunction<LogicalPlan, LogicalPlan> transformer = PartialFunction.fromFunction(func);
+            PartialFunction<LogicalPlan, LogicalPlan> transformer = new PartialFunction<LogicalPlan, LogicalPlan>() {
+                @Override
+                public boolean isDefinedAt(LogicalPlan x) {
+                    return true;
+                }
+                
+                @Override
+                public LogicalPlan apply(LogicalPlan x) {
+                    return func.apply(x);
+                }
+            };
             LogicalPlan transformed = original.transform(transformer);
             LOG.info("Transformed row level operation plan: {}", transformed);
             return transformed;
@@ -93,54 +99,38 @@ public class NDBParser
         return original;
     }
 
-
-
     @Override
-    public Expression parseExpression(String sqlText)
-            throws ParseException
-    {
+    public Expression parseExpression(String sqlText) throws ParseException {
         return parser.parseExpression(sqlText);
     }
 
     @Override
-    public TableIdentifier parseTableIdentifier(String sqlText)
-            throws ParseException
-    {
+    public TableIdentifier parseTableIdentifier(String sqlText) throws ParseException {
         return parser.parseTableIdentifier(sqlText);
     }
 
     @Override
-    public FunctionIdentifier parseFunctionIdentifier(String sqlText)
-            throws ParseException
-    {
+    public FunctionIdentifier parseFunctionIdentifier(String sqlText) throws ParseException {
         return parser.parseFunctionIdentifier(sqlText);
     }
 
     @Override
-    public Seq<String> parseMultipartIdentifier(String sqlText)
-            throws ParseException
-    {
-        return parser.parseMultipartIdentifier(sqlText);
+    public Seq<String> parseMultipartIdentifier(String sqlText) throws ParseException {
+        return (scala.collection.immutable.Seq<String>) parser.parseMultipartIdentifier(sqlText);
     }
 
     @Override
-    public LogicalPlan parseQuery(String sqlText)
-            throws ParseException
-    {
-        return parser.parseQuery(sqlText);
-    }
-
-    @Override
-    public StructType parseTableSchema(String sqlText)
-            throws ParseException
-    {
+    public StructType parseTableSchema(String sqlText) throws ParseException {
         return parser.parseTableSchema(sqlText);
     }
 
     @Override
-    public DataType parseDataType(String sqlText)
-            throws ParseException
-    {
+    public DataType parseDataType(String sqlText) throws ParseException {
         return parser.parseDataType(sqlText);
+    }
+
+    @Override
+    public LogicalPlan parseQuery(String sqlText) throws ParseException {
+        return parser.parseQuery(sqlText);
     }
 }
