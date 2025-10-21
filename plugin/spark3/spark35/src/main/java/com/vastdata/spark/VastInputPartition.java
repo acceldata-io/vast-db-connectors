@@ -31,7 +31,7 @@ public class VastInputPartition
 
     @Override
     public String[] preferredLocations() {
-        return new String[] { tablePath };
+        return new String[0];
     }
 
     @Override
